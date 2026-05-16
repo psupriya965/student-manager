@@ -88,13 +88,43 @@ DIU-Student-Manager/
 │
 └── assets/
     └── images/
-        └── screenshots/
-## 🎯 Future Improvements
+```
 
-* User authentication system
-* Database integration
-* Mobile responsive design
-* Study analytics dashboard
-* Reminder & notification system
-* Calendar integration
+---
 
+# ⚙️ Installation & Setup
+
+1. Clone the repository
+
+```bash
+git clone https://github.com/psupriya965/student-manager.git
+```
+
+2. Open the project folder
+
+```bash
+cd student-manager
+```
+
+3. Run the project
+
+- Open `index.html` in your browser
+
+---
+
+# 🎯 Future Improvements
+
+- 🔐 User authentication system
+- 🗄️ Database integration
+- 📱 Enhanced mobile responsive design
+- 📊 Study analytics dashboard
+- 🔔 Reminder & notification system
+- 📅 Calendar integration
+- 🌙 Dark mode support
+- ☁️ Cloud data synchronization
+- 📈 Productivity tracking graphs
+- 📌 Task priority management
+- 🤝 Group study collaboration features
+- 📄 Export schedules and notes as PDF
+
+---
