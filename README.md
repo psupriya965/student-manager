@@ -89,3 +89,12 @@ DIU-Student-Manager/
 └── assets/
     └── images/
         └── screenshots/
+## 🎯 Future Improvements
+
+* User authentication system
+* Database integration
+* Mobile responsive design
+* Study analytics dashboard
+* Reminder & notification system
+* Calendar integration
+
