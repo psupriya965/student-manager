@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Friday - Weekly Review</title>
+
+<style>
+:root{
+  --bg:#0f1117;
+  --sidebar-bg:#1a1518;
+  --border-color:#2d2d2d;
+  --accent-burgundy:#4a1d2e;
+  --card:#1c212b;
+  --panel:#171b21;
+  --text:#f1ede7;
+  --muted:#a8b4cb;
+  --accent:#ff4d8d;
+}
+
+*{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto;}
+body{background:var(--bg);color:var(--text)}
+.layout{display:flex}
+
+/* ===== SIDEBAR ===== */
+.sidebar{
+  width:260px;
+  background:var(--sidebar-bg);
+  border-right:1px solid var(--border-color);
+  padding:20px 10px;
+  height:100vh;
+  position:fixed;
+  overflow-y:auto;
+}
+
+.nav-header{
+  background:var(--accent-burgundy);
+  padding:10px;
+  border-radius:6px;
+  font-weight:bold;
+  margin-bottom:20px;
+}
+
+.nav-links{list-style:none}
+.nav-links a{
+  display:flex;
+  padding:8px 12px;
+  text-decoration:none;
+  color:var(--text);
+  border-radius:6px;
+  font-size:14px;
+}
+.nav-links a:hover{background:rgba(255,255,255,0.05)}
+.nav-links a.active{background:rgba(255,255,255,0.1)}
+.sidebar h4 {
+  font-size: 11px;
+  text-transform: uppercase;
+  color: #ff4d8d;
+  margin: 20px 0 10px 10px;
+  letter-spacing: 1px;
+}
+
+.menu { list-style: none; padding: 0; margin: 0; }
+.menu li a {
+  display: flex;
+  align-items: center;
+  padding: 8px 12px;
+  color: var(--text);
+  text-decoration: none;
+  font-size: 14px;
+  border-radius: 4px;
+  transition: background 0.2s;
+}
+.menu li a:hover { background: rgba(255, 255, 255, 0.05); }
+.icon { margin-right: 12px; width: 20px; text-align: center; font-size: 16px; }
+
+.todo-box { margin-top: 30px; padding: 0 10px; }
+.todo-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 14px;
+  margin-bottom: 8px;
+  color: var(--text);
+}
+.todo-item input { margin-right: 10px; accent-color: #337ea9; }
+.todo-item span { flex-grow: 1; }
+
+.del-btn {
+  background: none;
+  border: none;
+  color: var(--muted);
+  cursor: pointer;
+  font-size: 18px;
+  padding: 0 5px;
+  line-height: 1;
+  display: none;
+}
+.todo-item:hover .del-btn { display: block; color: #ff4d4d; }
+
+.wrapper{
+  margin-left:260px;
+  width:calc(100% - 260px);
+  padding:40px;
+}
+
+.title{font-size:32px;margin-bottom:20px}
+
+/* ===== ENTRY FORM ===== */
+.task-form{
+  background:var(--card);
+  padding:16px;
+  border-radius:12px;
+  margin-bottom:30px;
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+  gap:10px;
+}
+.task-form input{
+  padding:8px;
+  border-radius:8px;
+  border:1px solid #2a2f3b;
+  background:#0f1117;
+  color:white;
+}
+.btn-add-entry{
+  background:#2f7d32;
+  border:none;
+  border-radius:8px;
+  color:white;
+  cursor:pointer;
+}
+
+/* ===== CARDS ===== */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:20px}
+.card{
+  background:var(--card);
+  padding:16px;
+  border-radius:14px;
+  border:1px solid #2a2f3b;
+}
+.card h3{margin-bottom:8px}
+.card p{color:var(--muted);font-size:13px;margin:5px 0}
+
+/* ===== SUMMARY CIRCLE ===== */
+.summary-card{
+  margin-top:40px;
+  background:var(--card);
+  padding:30px;
+  border-radius:14px;
+  display:flex;
+  justify-content:center;
+}
+.circle-wrapper{position:relative;width:140px;height:140px}
+.circle-text{
+  position:absolute;
+  top:50%;left:50%;
+  transform:translate(-50%,-50%);
+  font-size:22px;
+  font-weight:bold;
+  color:var(--accent);
+}
+
+/* ===== BACKLOG ===== */
+.backlog-box{
+  margin-top:40px;
+  background:linear-gradient(145deg,#22192d,#1b1526);
+  padding:20px;
+  border-radius:14px;
+}
+.backlog-item{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  background:#2a1f3d;
+  padding:8px 10px;
+  margin:8px 0;
+  border-radius:8px;
+}
+.btn-delete{
+  background:#6e3630;
+  border:none;
+  color:white;
+  border-radius:6px;
+  padding:4px 8px;
+  cursor:pointer;
+}
+</style>
+</head>
+<body>
+
+<div class="layout">
+<aside class="sidebar">
+  <div class="nav-header">
+    <a href="index.html" style="color: inherit; text-decoration: none; display: flex; align-items: center; gap: 8px;">
+      <span>🎓</span> <span>DIU Student Manager</span>
+    </a>
+  </div>
+  
+  <h4>Navigation</h4>
+  <ul class="menu">
+    <li><a href="exams and study.html"><span class="icon">📚</span> Exams and Study</a></li>
+    <li><a href="courses.html"><span class="icon">📕</span> Courses</a></li>
+    <li><a href="habit.html"><span class="icon">📅</span> Habit tracker</a></li>
+    <li><a href="hacking.html"><span class="icon" style="color:#ff4d8d">/&gt;</span> Hacking</a></li>
+    <li><a href="goals.html"><span class="icon">🎯</span> Goals</a></li>
+    <li><a href="planner.html"><span class="icon">🥪</span> Planner</a></li>
+    <li><a href="morning.html"><span class="icon">😀</span> Morning Routine</a></li>
+    <li><a href="night.html"><span class="icon">🌚</span> Night Routine</a></li>
+    <li><a href="allclasses.html"><span class="icon">田</span> All Classes</a></li>
+    <li><a href="assignments.html"><span class="icon">田</span> Assignments</a></li>
+    <li><a href="friday.html"><span class="icon">団</span> View of Friday</a></li>
+  </ul>
+  <div class="todo-box">
+    <h4>To Do List:</h4>
+    <div style="display: flex; gap: 5px; margin-bottom: 15px;">
+      <input type="text" id="todoInput" placeholder="New task..." style="flex-grow: 1; background: #2d2d2d; border: 1px solid var(--border-color); color: white; padding: 5px; border-radius: 4px; font-size: 12px;">
+      <button onclick="addTodo()" style="background: #337ea9; border: none; color: white; border-radius: 4px; padding: 0 10px; cursor: pointer; font-weight: bold;">+</button>
+    </div>
+    <div id="todoList">
+      <div class="todo-item"><input type="checkbox"> <span>Daily Class</span> <button class="del-btn" onclick="this.parentElement.remove()">×</button></div>
+      <div class="todo-item"><input type="checkbox"> <span>Assignment</span> <button class="del-btn" onclick="this.parentElement.remove()">×</button></div>
+      <div class="todo-item"><input type="checkbox"> <span>Java Course</span> <button class="del-btn" onclick="this.parentElement.remove()">×</button></div>
+    </div>
+  </div>
+</aside>
+
+<div class="wrapper">
+
+<h1 class="title">Friday - Weekly Review</h1>
+
+<div class="task-form">
+  <input type="date" id="dateInput">
+  <input type="text" id="classInput" placeholder="Class name">
+  <input type="text" id="taskInput" placeholder="Tasks (comma separated)">
+  <button class="btn-add-entry" onclick="addEntry()">Add</button>
+</div>
+
+<div class="grid" id="entryGrid"></div>
+
+<!-- SUMMARY -->
+<div class="summary-card">
+<div class="circle-wrapper">
+<svg width="140" height="140">
+<circle cx="70" cy="70" r="55" stroke="#2a2f3b" stroke-width="12" fill="none"/>
+<circle id="progressCircle" cx="70" cy="70" r="55"
+stroke="#ff4d8d"
+stroke-width="12"
+fill="none"
+stroke-linecap="round"
+stroke-dasharray="345"
+stroke-dashoffset="345"/>
+</svg>
+<div class="circle-text">
+<span id="progressPercent">0%</span>
+</div>
+</div>
+</div>
+
+<!-- BACKLOG -->
+<div class="backlog-box">
+<h3>Weekend Backlog</h3>
+<div style="display:flex;gap:10px;margin:10px 0;">
+<input type="text" id="backlogInput" placeholder="Add weekend task" style="flex:1;padding:8px;border-radius:6px;border:none;">
+<button class="btn-add-entry" onclick="addBacklog()">Add</button>
+</div>
+<div id="backlogList"></div>
+</div>
+
+</div>
+</div>
+
+<script>
+const PLAN_KEY="friday_plan";
+const BACKLOG_KEY="weekend_backlog";
+
+function getPlan(){
+return JSON.parse(localStorage.getItem(PLAN_KEY))||[];
+}
+function savePlan(data){
+localStorage.setItem(PLAN_KEY,JSON.stringify(data));
+}
+
+function addEntry(){
+const date=document.getElementById("dateInput").value;
+const cls=document.getElementById("classInput").value.trim();
+const tasksRaw=document.getElementById("taskInput").value.trim();
+if(!date||!cls)return;
+
+const tasks=tasksRaw.split(",").map(t=>({text:t.trim(),completed:false}));
+
+const data=getPlan();
+data.push({id:Date.now(),date,cls,tasks});
+savePlan(data);
+render();
+}
+
+function render(){
+const grid=document.getElementById("entryGrid");
+grid.innerHTML="";
+const data=getPlan();
+
+data.forEach(entry=>{
+const card=document.createElement("div");
+card.className="card";
+card.innerHTML=`<h3>${entry.cls}</h3><p>${entry.date}</p>`;
+
+entry.tasks.forEach((task,index)=>{
+const div=document.createElement("div");
+div.innerHTML=`<input type="checkbox" ${task.completed?"checked":""}
+onchange="toggleTask(${entry.id},${index})"> ${task.text}`;
+card.appendChild(div);
+});
+
+grid.appendChild(card);
+});
+
+updateProgress();
+}
+
+function toggleTask(id,index){
+const data=getPlan();
+const entry=data.find(e=>e.id==id);
+entry.tasks[index].completed=!entry.tasks[index].completed;
+savePlan(data);
+render();
+}
+
+function updateProgress(){
+const data=getPlan();
+let total=0,done=0;
+data.forEach(e=>{
+e.tasks.forEach(t=>{
+total++;
+if(t.completed)done++;
+});
+});
+const percent=total?Math.round((done/total)*100):0;
+document.getElementById("progressPercent").innerText=percent+"%";
+const circle=document.getElementById("progressCircle");
+circle.style.strokeDashoffset=345-(345*percent/100);
+}
+
+/* BACKLOG */
+function getBacklog(){
+return JSON.parse(localStorage.getItem(BACKLOG_KEY))||[];
+}
+function saveBacklog(d){
+localStorage.setItem(BACKLOG_KEY,JSON.stringify(d));
+}
+function renderBacklog(){
+const list=document.getElementById("backlogList");
+list.innerHTML="";
+getBacklog().forEach((item,i)=>{
+const div=document.createElement("div");
+div.className="backlog-item";
+div.innerHTML=`
+<div><input type="checkbox" ${item.done?"checked":""}
+onchange="toggleBacklog(${i})"> ${item.text}</div>
+<button class="btn-delete" onclick="deleteBacklog(${i})">Delete</button>
+`;
+list.appendChild(div);
+});
+}
+function addBacklog(){
+const input=document.getElementById("backlogInput");
+const text=input.value.trim();
+if(!text)return;
+const data=getBacklog();
+data.push({text,done:false});
+saveBacklog(data);
+renderBacklog();
+input.value="";
+}
+function toggleBacklog(i){
+const data=getBacklog();
+data[i].done=!data[i].done;
+saveBacklog(data);
+renderBacklog();
+}
+function deleteBacklog(i){
+const data=getBacklog();
+data.splice(i,1);
+saveBacklog(data);
+renderBacklog();
+}
+
+render();
+renderBacklog();
+
+function addTodo() {
+  const input = document.getElementById('todoInput');
+  const text = input.value.trim();
+  if (text !== "") {
+    const todoList = document.getElementById('todoList');
+    const div = document.createElement('div');
+    div.className = 'todo-item';
+    div.innerHTML = `
+      <input type="checkbox">
+      <span>${text}</span>
+      <button class="del-btn" onclick="this.parentElement.remove()">×</button>
+    `;
+    todoList.appendChild(div);
+    input.value = "";
+  }
+}
+
+document.getElementById('todoInput').addEventListener('keypress', function (e) {
+  if (e.key === 'Enter') addTodo();
+});
+</script>
+
+</body>
+</html>

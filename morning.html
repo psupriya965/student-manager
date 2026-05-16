@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Morning Routine - DIU Student Manager</title>
+
+<style>
+:root {
+    --bg: #0f1117;
+    --sidebar-bg: #1a1518;
+    --text-main: #ffffff;
+    --text-dim: #9b9b9b;
+    --accent-burgundy: #4a1d2e;
+    --border-color: #2d2d2d;
+    --notion-blue: #337ea9;
+    --muted: #a8b4cb;
+    --accent-pink: #ff4d8d;
+    --accent-gold: #f4c542;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background:
+        radial-gradient(900px 500px at 75% -15%, rgba(255, 77, 141, 0.16), transparent 55%),
+        radial-gradient(700px 420px at -10% 30%, rgba(51, 126, 169, 0.14), transparent 55%),
+        var(--bg);
+    color: var(--text-main);
+}
+
+.layout { display: flex; min-height: 100vh; }
+
+.sidebar {
+    width: 260px;
+    background: var(--sidebar-bg);
+    padding: 20px 10px;
+    border-right: 1px solid var(--border-color);
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+}
+
+.nav-header {
+    font-size: 14px;
+    font-weight: bold;
+    padding: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--accent-burgundy);
+    border-radius: 5px;
+    margin-bottom: 20px;
+    text-decoration: none;
+    color: white;
+}
+
+.sidebar h4 {
+    font-size: 11px;
+    text-transform: uppercase;
+    color: #ff4d8d;
+    margin: 20px 0 10px 10px;
+    letter-spacing: 1px;
+}
+
+.menu { list-style: none; padding: 0; margin: 0; }
+.menu li a {
+    display: flex;
+    align-items: center;
+    padding: 8px 12px;
+    color: var(--text-main);
+    text-decoration: none;
+    font-size: 14px;
+    border-radius: 4px;
+    transition: background 0.2s;
+}
+.menu li a:hover { background: rgba(255, 255, 255, 0.05); }
+.menu li a.active { background: rgba(255, 255, 255, 0.08); font-weight: 600; }
+.icon { margin-right: 12px; width: 20px; text-align: center; font-size: 16px; }
+
+.todo-box { margin-top: 30px; padding: 0 10px; }
+.todo-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 14px;
+    margin-bottom: 8px;
+    color: var(--text-main);
+}
+.todo-item input { margin-right: 10px; accent-color: var(--notion-blue); }
+.todo-item span { flex-grow: 1; }
+.del-btn {
+    background: none;
+    border: none;
+    color: var(--text-dim);
+    cursor: pointer;
+    font-size: 18px;
+    padding: 0 5px;
+    line-height: 1;
+    display: none;
+}
+.todo-item:hover .del-btn { display: block; color: #ff4d4d; }
+
+.main-area { flex-grow: 1; min-width: 0; }
+
+.hero-banner {
+    height: 165px;
+    background:
+        linear-gradient(120deg, rgba(74, 29, 46, 0.95), rgba(42, 19, 40, 0.82)),
+        radial-gradient(circle at 20% 40%, rgba(255, 77, 141, 0.25), transparent 35%);
+    width: 100%;
+    border-bottom: 1px solid #2f3240;
+}
+
+.content-wrap {
+    max-width: 1000px;
+    margin: -56px auto 40px;
+    padding: 0 26px;
+}
+
+.page-icon {
+    font-size: 62px;
+    margin-bottom: 8px;
+    display: block;
+    text-shadow: 0 8px 18px rgba(0, 0, 0, 0.35);
+}
+
+.page-title {
+    font-size: 50px;
+    font-weight: 750;
+    letter-spacing: -0.6px;
+    margin-bottom: 28px;
+}
+
+.section-container {
+    margin-bottom: 24px;
+    background: linear-gradient(180deg, rgba(24, 30, 44, 0.8), rgba(16, 21, 33, 0.7));
+    border: 1px solid #2a3245;
+    border-radius: 16px;
+    padding: 18px;
+    box-shadow: 0 14px 30px rgba(0, 0, 0, 0.25);
+}
+
+.section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid #333d54;
+    padding-bottom: 10px;
+    margin-bottom: 16px;
+}
+
+.section-header h2 {
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: -0.2px;
+}
+
+.section-icons {
+    color: var(--muted);
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.section-icons span {
+    width: 24px;
+    height: 24px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.quote {
+    color: #d6ddef;
+    margin: 0;
+    font-style: italic;
+    border-left: 3px solid var(--accent-gold);
+    padding-left: 12px;
+    font-size: 14px;
+}
+
+.progress-track {
+    background: #333b4d;
+    height: 10px;
+    border-radius: 5px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    background: var(--accent-gold);
+    height: 100%;
+    width: 0%;
+    transition: width 0.3s ease;
+}
+
+.progress-text {
+    font-size: 12px;
+    margin-top: 8px;
+    color: var(--muted);
+    text-align: right;
+}
+
+.routine-list { list-style: none; padding: 0; }
+
+.routine-item {
+    background: linear-gradient(180deg, #1b2433, #151e2d);
+    border: 1px solid #32405a;
+    margin-bottom: 10px;
+    padding: 14px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: #e6eefc;
+}
+
+.routine-item input {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--accent-gold);
+}
+
+.routine-item.completed span {
+    text-decoration: line-through;
+    color: var(--text-dim);
+}
+
+.add-routine-box {
+    display: flex;
+    gap: 10px;
+    margin-top: 18px;
+}
+
+.add-routine-box input {
+    flex-grow: 1;
+    background: #222b3d;
+    border: 1px solid #3a4761;
+    color: white;
+    padding: 11px;
+    border-radius: 8px;
+}
+
+.add-routine-box button {
+    border: 1px solid #9d7a22;
+    background: #c79b2f;
+    color: #111;
+    padding: 0 18px;
+    border-radius: 8px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+@media(max-width:1000px) {
+    .sidebar { display: none; }
+    .content-wrap { margin-top: -48px; padding: 0 14px 30px; }
+    .page-title { font-size: 36px; }
+    .section-container { padding: 14px; border-radius: 14px; }
+}
+</style>
+</head>
+
+<body>
+<div class="layout">
+<aside class="sidebar">
+<a href="index.html" class="nav-header">
+    <span>🎓</span> DIU Student Manager
+</a>
+
+<h4>Navigation</h4>
+<ul class="menu">
+    <li><a href="exams and study.html"><span class="icon">📚</span> Exams and Study</a></li>
+    <li><a href="courses.html"><span class="icon">📕</span> Courses</a></li>
+    <li><a href="habit.html"><span class="icon">📅</span> Habit tracker</a></li>
+    <li><a href="hacking.html"><span class="icon" style="color:#ff4d8d">/></span> Hacking</a></li>
+    <li><a href="goals.html"><span class="icon">🎯</span> Goals</a></li>
+    <li><a href="planner.html"><span class="icon">🥪</span> Planner</a></li>
+    <li><a href="morning.html" class="active"><span class="icon">😀</span> Morning Routine</a></li>
+    <li><a href="night.html"><span class="icon">🌚</span> Night Routine</a></li>
+    <li><a href="allclasses.html"><span class="icon">田</span> All Classes</a></li>
+    <li><a href="assignments.html"><span class="icon">田</span> Assignments</a></li>
+    <li><a href="weekend.html"><span class="icon">🌙</span>Weekend</a></li>
+</ul>
+
+<div class="todo-box">
+<h4>To Do List:</h4>
+<div style="display:flex;gap:5px;margin-bottom:15px;">
+<input type="text" id="todoInput" placeholder="New task..." style="flex-grow:1;background:#2d2d2d;border:1px solid var(--border-color);color:white;padding:5px;border-radius:4px;font-size:12px;">
+<button onclick="addTodo()" style="background:var(--notion-blue);border:none;color:white;border-radius:4px;padding:0 10px;cursor:pointer;font-weight:bold;">+</button>
+</div>
+<div id="todoList">
+<div class="todo-item"><input type="checkbox"><span>Daily Class</span><button class="del-btn" onclick="this.parentElement.remove()">×</button></div>
+<div class="todo-item"><input type="checkbox"><span>Assignment</span><button class="del-btn" onclick="this.parentElement.remove()">×</button></div>
+<div class="todo-item"><input type="checkbox"><span>JavaS Course</span><button class="del-btn" onclick="this.parentElement.remove()">×</button></div>
+</div>
+</div>
+</aside>
+
+<div class="main-area">
+<div class="hero-banner"></div>
+<main class="content-wrap">
+<span class="page-icon">😀</span>
+<h1 class="page-title">Morning Routine</h1>
+
+<section class="section-container">
+    <div class="section-header">
+        <h2>Motivation</h2>
+        <div class="section-icons"><span>☀</span></div>
+    </div>
+    <p class="quote">Be thankful to God everyday.</p>
+</section>
+
+<section class="section-container">
+    <div class="section-header">
+        <h2>Progress</h2>
+        <div class="section-icons"><span>◔</span></div>
+    </div>
+    <div class="progress-track">
+        <div class="progress-fill" id="routineBar"></div>
+    </div>
+    <div class="progress-text" id="routinePercent">0% completed</div>
+</section>
+
+<section class="section-container">
+    <div class="section-header">
+        <h2>Routine Checklist</h2>
+        <div class="section-icons"><span>≡</span><span>⌕</span></div>
+    </div>
+
+    <ul class="routine-list" id="routineTasks">
+    <li class="routine-item"><input type="checkbox"> <span>Thank God for another day</span></li>
+    <li class="routine-item"><input type="checkbox"> <span>Brush my teeth</span></li>
+    <li class="routine-item"><input type="checkbox"> <span>Wash face and put on cream</span></li>
+    </ul>
+
+    <div class="add-routine-box">
+    <input type="text" id="newRoutineInput" placeholder="Add new routine item...">
+    <button onclick="addRoutineItem()">Add</button>
+    </div>
+</section>
+
+</main>
+</div>
+</div>
+
+<script>
+function addTodo(){
+const input=document.getElementById('todoInput');
+if(!input.value.trim()) return;
+const div=document.createElement('div');
+div.className='todo-item';
+div.innerHTML=`<input type="checkbox"><span>${input.value}</span><button class="del-btn" onclick="this.parentElement.remove()">×</button>`;
+document.getElementById('todoList').appendChild(div);
+input.value='';
+}
+
+document.getElementById('todoInput').addEventListener('keypress',e=>{if(e.key==='Enter') addTodo();});
+
+function updateRoutineProgress(){
+const tasks=document.querySelectorAll('#routineTasks input');
+const completed=[...tasks].filter(t=>t.checked).length;
+const percent=tasks.length?Math.round((completed/tasks.length)*100):0;
+document.getElementById('routineBar').style.width=percent+'%';
+document.getElementById('routinePercent').innerText=percent+'% completed';
+tasks.forEach(t=>t.parentElement.classList.toggle('completed',t.checked));
+}
+
+document.querySelectorAll('#routineTasks input').forEach(i=>i.addEventListener('change',updateRoutineProgress));
+
+function addRoutineItem(){
+const input=document.getElementById('newRoutineInput');
+if(!input.value.trim()) return;
+const li=document.createElement('li');
+li.className='routine-item';
+li.innerHTML=`<input type="checkbox"> <span>${input.value}</span>`;
+document.getElementById('routineTasks').appendChild(li);
+li.querySelector('input').addEventListener('change',updateRoutineProgress);
+input.value='';
+updateRoutineProgress();
+}
+</script>
+
+</body>
+</html>

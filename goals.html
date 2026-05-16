@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Goals - DIU Student Manager</title>
+
+<style>
+:root{
+  --bg:#0f1117;
+  --sidebar-bg:#1a1518;
+  --border-color:#2d2d2d;
+  --accent-burgundy:#4a1d2e;
+  --text:#ffffff;
+  --text-main:#ffffff;
+  --muted:#a8b4cb;
+  --accent-pink:#ff4d8d;
+  --notion-blue:#337ea9;
+  --gold:#f4c542;
+}
+
+*{box-sizing:border-box;margin:0;padding:0;}
+
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial;
+  background:
+    radial-gradient(900px 500px at 75% -15%, rgba(255, 77, 141, 0.16), transparent 55%),
+    radial-gradient(700px 420px at -10% 30%, rgba(51, 126, 169, 0.14), transparent 55%),
+    var(--bg);
+  color:var(--text);
+}
+
+.layout{display:flex;min-height:100vh;}
+
+/* ===== SIDEBAR ===== */
+.sidebar{
+  width:260px;
+  background:var(--sidebar-bg);
+  padding:20px 10px;
+  border-right:1px solid var(--border-color);
+  height:100vh;
+  position:sticky;
+  top:0;
+  overflow-y:auto;
+}
+
+.nav-header{
+  font-size:14px;
+  font-weight:bold;
+  padding:10px;
+  display:flex;
+  align-items:center;
+  gap:8px;
+  background:var(--accent-burgundy);
+  border-radius:5px;
+  margin-bottom:20px;
+  text-decoration:none;
+  color:white;
+}
+
+.sidebar h4{
+  font-size:11px;
+  text-transform:uppercase;
+  color:#ff4d8d;
+  margin:20px 0 10px 10px;
+}
+
+.menu{list-style:none;}
+.menu li a{
+  display:flex;
+  align-items:center;
+  padding:8px 12px;
+  color:var(--text);
+  text-decoration:none;
+  font-size:14px;
+  border-radius:4px;
+}
+.menu li a:hover{background:rgba(255,255,255,0.05);}
+.menu li a.active{background:rgba(255,255,255,0.08);font-weight:600;}
+.icon{margin-right:12px;width:20px;text-align:center;}
+
+/* ===== TODO ===== */
+.todo-box{margin-top:30px;padding:0 10px;}
+.todo-item{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  font-size:14px;
+  margin-bottom:8px;
+}
+.todo-item input{margin-right:10px;accent-color:var(--notion-blue);}
+.todo-item span{flex-grow:1;}
+.del-btn{
+  background:none;
+  border:none;
+  color:#9b9b9b;
+  cursor:pointer;
+  font-size:18px;
+  display:none;
+}
+.todo-item:hover .del-btn{display:block;color:#ff4d4d;}
+
+/* ===== MAIN ===== */
+.main-area{flex-grow:1;min-width:0;}
+
+.hero-banner{
+  height:165px;
+  background:
+    linear-gradient(120deg, rgba(74, 29, 46, 0.95), rgba(42, 19, 40, 0.82)),
+    radial-gradient(circle at 20% 40%, rgba(255, 77, 141, 0.25), transparent 35%);
+  width:100%;
+  border-bottom:1px solid #2f3240;
+}
+
+.content-wrap{
+  max-width:1100px;
+  margin:-56px auto 40px;
+  padding:0 26px;
+}
+
+.page-icon{
+  font-size:62px;
+  margin-bottom:8px;
+  display:block;
+  text-shadow:0 8px 18px rgba(0,0,0,0.35);
+}
+
+.page-title{
+  font-size:50px;
+  font-weight:750;
+  letter-spacing:-0.6px;
+  margin-bottom:10px;
+}
+
+.subtitle{
+  color:var(--muted);
+  margin-bottom:22px;
+  font-size:15px;
+}
+
+.section-container{
+  margin-bottom:24px;
+  background:linear-gradient(180deg, rgba(24, 30, 44, 0.8), rgba(16, 21, 33, 0.7));
+  border:1px solid #2a3245;
+  border-radius:16px;
+  padding:18px;
+  box-shadow:0 14px 30px rgba(0,0,0,0.25);
+}
+
+.section-header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  border-bottom:1px solid #333d54;
+  padding-bottom:10px;
+  margin-bottom:16px;
+}
+
+.section-header h2{
+  font-size:24px;
+  font-weight:700;
+  letter-spacing:-0.2px;
+}
+
+.section-icons{
+  color:var(--muted);
+  display:flex;
+  gap:10px;
+  align-items:center;
+}
+
+.section-icons span{
+  width:24px;
+  height:24px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:6px;
+  background:rgba(255,255,255,0.03);
+  border:1px solid rgba(255,255,255,0.08);
+}
+
+.goal-progress{
+  margin-bottom:10px;
+  font-size:14px;
+  color:var(--muted);
+}
+
+.progress-bar{
+  width:100%;
+  height:8px;
+  background:#2a2f3b;
+  border-radius:20px;
+  overflow:hidden;
+  margin-bottom:8px;
+}
+
+.progress-fill{
+  height:100%;
+  width:0%;
+  background:var(--gold);
+  transition:.4s;
+}
+
+.section{margin-bottom:20px;}
+.section:last-child{margin-bottom:0;}
+
+.topic-title{
+  background:linear-gradient(180deg, #1b2433, #151e2d);
+  border:1px solid #32405a;
+  color:#d6ddef;
+  padding:10px 12px;
+  border-radius:10px;
+  font-weight:700;
+  margin-bottom:12px;
+  font-size:14px;
+}
+
+.grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
+  gap:14px;
+}
+
+.card{
+  background:linear-gradient(180deg, #1b2433, #151e2d);
+  border:1px solid #32405a;
+  border-radius:12px;
+  font-size:14px;
+  cursor:pointer;
+  transition:.2s;
+  display:flex;
+  align-items:center;
+  gap:8px;
+  padding:12px;
+  color:#e6eefc;
+}
+
+.card:hover{border-color:#3f5273;transform:translateY(-1px);}
+
+.card.selected{
+  background:linear-gradient(135deg, #3a2430, #2a1b24);
+  border-color:var(--gold);
+  box-shadow:0 0 10px rgba(244,197,66,0.35);
+}
+
+.check-icon{font-size:16px;color:var(--gold);}
+
+@media(max-width:1000px){
+  .sidebar{display:none;}
+  .content-wrap{margin-top:-48px;padding:0 14px 30px;}
+  .page-title{font-size:36px;}
+  .section-container{padding:14px;border-radius:14px;}
+  .grid{grid-template-columns:1fr;}
+}
+</style>
+</head>
+
+<body>
+<div class="layout">
+<aside class="sidebar">
+<a href="index.html" class="nav-header">
+<span>🎓</span> DIU Student Manager
+</a>
+
+<h4>Navigation</h4>
+<ul class="menu">
+<li><a href="exams and study.html"><span class="icon">📚</span> Exams and Study</a></li>
+<li><a href="courses.html"><span class="icon">📕</span> Courses</a></li>
+<li><a href="habit.html"><span class="icon">📅</span> Habit tracker</a></li>
+<li><a href="hacking.html"><span class="icon" style="color:#ff4d8d">/&gt;</span> Hacking</a></li>
+<li><a href="goals.html" class="active"><span class="icon">🎯</span> Goals</a></li>
+<li><a href="planner.html"><span class="icon">🥪</span> Planner</a></li>
+<li><a href="morning.html"><span class="icon">😀</span> Morning Routine</a></li>
+<li><a href="night.html"><span class="icon">🌚</span> Night Routine</a></li>
+<li><a href="allclasses.html"><span class="icon">田</span> All Classes</a></li>
+<li><a href="assignments.html"><span class="icon">田</span> Assignments</a></li>
+<li><a href="weekend.html"><span class="icon">🌙</span>Weekend</a></li>
+</ul>
+
+<div class="todo-box">
+<h4>To Do List:</h4>
+
+<div style="display:flex;gap:5px;margin-bottom:15px;">
+<input type="text" id="todoInput" placeholder="New task..."
+style="flex-grow:1;background:#2d2d2d;border:1px solid var(--border-color);
+color:white;padding:5px;border-radius:4px;font-size:12px;">
+<button onclick="addTodo()"
+style="background:var(--notion-blue);border:none;color:white;
+border-radius:4px;padding:0 10px;cursor:pointer;font-weight:bold;">+</button>
+</div>
+
+<div id="todoList">
+<div class="todo-item">
+<input type="checkbox">
+<span>Daily Class</span>
+<button class="del-btn" onclick="this.parentElement.remove()">×</button>
+</div>
+
+<div class="todo-item">
+<input type="checkbox">
+<span>Assignment</span>
+<button class="del-btn" onclick="this.parentElement.remove()">×</button>
+</div>
+
+<div class="todo-item">
+<input type="checkbox">
+<span>Python Course</span>
+<button class="del-btn" onclick="this.parentElement.remove()">×</button>
+</div>
+</div>
+</div>
+</aside>
+
+<div class="main-area">
+<div class="hero-banner"></div>
+<main class="content-wrap">
+<span class="page-icon">🎯</span>
+<h1 class="page-title">My Tech Goals</h1>
+<div class="subtitle">Tools and technologies I want to master</div>
+
+<section class="section-container">
+  <div class="section-header">
+    <h2>Goal Progress</h2>
+    <div class="section-icons"><span>◔</span></div>
+  </div>
+  <div class="goal-progress">
+    <span id="goalCount">0</span>/<span id="goalTotal">0</span> completed
+  </div>
+  <div class="progress-bar">
+    <div class="progress-fill" id="progressFill"></div>
+  </div>
+</section>
+
+<section class="section-container">
+  <div class="section-header">
+    <h2>Goal Categories</h2>
+    <div class="section-icons"><span>≡</span><span>⌕</span></div>
+  </div>
+
+  <div class="section">
+  <div class="topic-title">Programming Languages</div>
+  <div class="grid">
+  <div class="card"><span class="check-icon">☐</span><span class="card-text">Python</span></div>
+  <div class="card"><span class="check-icon">☐</span><span class="card-text">C++</span></div>
+  <div class="card"><span class="check-icon">☐</span><span class="card-text">MATLAB</span></div>
+  <div class="card"><span class="check-icon">☐</span><span class="card-text">Java</span></div>
+  <div class="card"><span class="check-icon">☐</span><span class="card-text">R</span></div>
+  </div>
+  </div>
+
+  <div class="section">
+  <div class="topic-title">Libraries and Frameworks</div>
+  <div class="grid">
+  <div class="card"><span class="check-icon">☐</span><span class="card-text">React</span></div>
+  <div class="card"><span class="check-icon">☐</span><span class="card-text">Angular</span></div>
+  <div class="card"><span class="check-icon">☐</span><span class="card-text">Vue.js</span></div>
+  <div class="card"><span class="check-icon">☐</span><span class="card-text">Node.js</span></div>
+  <div class="card"><span class="check-icon">☐</span><span class="card-text">Express.js</span></div>
+  <div class="card"><span class="check-icon">☐</span><span class="card-text">Flask</span></div>
+  <div class="card"><span class="check-icon">☐</span><span class="card-text">Pandas</span></div>
+  <div class="card"><span class="check-icon">☐</span><span class="card-text">NumPy</span></div>
+  </div>
+  </div>
+
+  <div class="section">
+  <div class="topic-title">Hardware</div>
+  <div class="grid">
+  <div class="card"><span class="check-icon">☐</span><span class="card-text">CPU</span></div>
+  <div class="card"><span class="check-icon">☐</span><span class="card-text">RAM</span></div>
+  <div class="card"><span class="check-icon">☐</span><span class="card-text">ROM</span></div>
+  </div>
+  </div>
+
+  <div class="section">
+  <div class="topic-title">Cloud Services</div>
+  <div class="grid">
+  <div class="card"><span class="check-icon">☐</span><span class="card-text">AI Services</span></div>
+  <div class="card"><span class="check-icon">☐</span><span class="card-text">Google Cloud Vision AI</span></div>
+  <div class="card"><span class="check-icon">☐</span><span class="card-text">Microsoft Azure Computer Vision</span></div>
+  <div class="card"><span class="check-icon">☐</span><span class="card-text">Hosting</span></div>
+  </div>
+  </div>
+
+  <div class="section">
+  <div class="topic-title">Image Annotation Tools</div>
+  <div class="grid">
+  <div class="card"><span class="check-icon">☐</span><span class="card-text">TenserFlow</span></div>
+  <div class="card"><span class="check-icon">☐</span><span class="card-text">PyTorch</span></div>
+  </div>
+  </div>
+
+  <div class="section">
+  <div class="topic-title">Version Control and Collaboration</div>
+  <div class="grid">
+  <div class="card"><span class="check-icon">☐</span><span class="card-text">Git</span></div>
+  <div class="card"><span class="check-icon">☐</span><span class="card-text">GitHub</span></div>
+  <div class="card"><span class="check-icon">☐</span><span class="card-text">GitLab</span></div>
+  <div class="card"><span class="check-icon">☐</span><span class="card-text">DVC</span></div>
+  </div>
+  </div>
+
+  <div class="section">
+  <div class="topic-title">Other Tools</div>
+  <div class="grid">
+  <div class="card"><span class="check-icon">☐</span><span class="card-text">Visual Studio Code</span></div>
+  <div class="card"><span class="check-icon">☐</span><span class="card-text">IntelliJ IDEA</span></div>
+  </div>
+  </div>
+</section>
+
+</main>
+</div>
+</div>
+
+<script>
+const cards=document.querySelectorAll('.card');
+const STORAGE_KEY="selected_goals";
+let saved=JSON.parse(localStorage.getItem(STORAGE_KEY))||[];
+
+function updateProgress(){
+const selected=document.querySelectorAll('.card.selected').length;
+const total=cards.length;
+document.getElementById('goalCount').innerText=selected;
+document.getElementById('goalTotal').innerText=total;
+document.getElementById('progressFill').style.width=(total? (selected/total*100):0)+"%";
+}
+
+cards.forEach(card=>{
+const text=card.querySelector('.card-text').innerText.trim();
+if(saved.includes(text)){
+card.classList.add("selected");
+card.querySelector('.check-icon').innerText="☑";
+}
+
+card.addEventListener("click",()=>{
+card.classList.toggle("selected");
+
+if(card.classList.contains("selected")){
+card.querySelector('.check-icon').innerText="☑";
+saved.push(text);
+}else{
+card.querySelector('.check-icon').innerText="☐";
+saved=saved.filter(item=>item!==text);
+}
+
+localStorage.setItem(STORAGE_KEY,JSON.stringify(saved));
+updateProgress();
+});
+});
+
+updateProgress();
+function addTodo(){
+const input=document.getElementById('todoInput');
+if(!input.value.trim()) return;
+
+const div=document.createElement('div');
+div.className='todo-item';
+div.innerHTML=`
+<input type="checkbox">
+<span>${input.value}</span>
+<button class="del-btn" onclick="this.parentElement.remove()">×</button>
+`;
+
+document.getElementById('todoList').appendChild(div);
+input.value='';
+}
+
+document.getElementById('todoInput').addEventListener('keypress',e=>{
+if(e.key==='Enter') addTodo();
+});
+</script>
+
+</body>
+</html>

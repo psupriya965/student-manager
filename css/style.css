@@ -1,0 +1,113 @@
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Arial;
+}
+
+body{
+    background:#0f172a;
+    color:white;
+}
+
+.container{
+    display:flex;
+}
+
+.sidebar{
+    width:250px;
+    background:#111827;
+    min-height:100vh;
+    padding:20px;
+}
+
+.sidebar h2{
+    color:#ec4899;
+    margin-bottom:20px;
+}
+
+.sidebar ul{
+    list-style:none;
+}
+
+.sidebar ul li{
+    margin:15px 0;
+}
+
+.sidebar ul li a{
+    color:white;
+    text-decoration:none;
+}
+
+.sidebar ul li a:hover{
+    color:#38bdf8;
+}
+
+.main{
+    flex:1;
+    padding:30px;
+}
+
+.header{
+    background:linear-gradient(to right,#7c3aed,#ec4899);
+    padding:30px;
+    border-radius:12px;
+    margin-bottom:20px;
+}
+
+.card{
+    background:#1e293b;
+    padding:20px;
+    border-radius:12px;
+    margin-bottom:20px;
+}
+
+.course-box{
+    background:#334155;
+    padding:15px;
+    border-radius:10px;
+    margin-top:10px;
+}
+
+.progress{
+    background:#0f172a;
+    height:10px;
+    border-radius:20px;
+    overflow:hidden;
+    margin-top:10px;
+}
+
+.progress-bar{
+    background:#22c55e;
+    height:10px;
+}
+
+button{
+    padding:10px 20px;
+    background:#2563eb;
+    color:white;
+    border:none;
+    border-radius:8px;
+}
+
+input,textarea{
+    width:100%;
+    padding:10px;
+    margin:10px 0;
+    border:none;
+    border-radius:8px;
+}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+}
+
+table th, table td{
+    border:1px solid #475569;
+    padding:12px;
+}
+
+table th{
+    background:#1d4ed8;
+}

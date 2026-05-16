@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hacking - DIU Student Manager</title>
+
+<style>
+:root {
+  --bg: #0f1117;
+  --sidebar-bg: #1a1518;
+  --border-color: #2d2d2d;
+  --nav-header-bg: #4a1d2e;
+  --text: #ffffff;
+  --text-main: #ffffff;
+  --muted: #a8b4cb;
+  --accent-pink: #ff4d8d;
+  --notion-blue: #337ea9;
+}
+
+/* ===== BASIC RESET ===== */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  overflow-x: hidden;
+}
+
+.layout { display: flex; }
+
+/* ===== SIDEBAR (Matched to Habit Tracker/Courses) ===== */
+.sidebar {
+  width: 260px;
+  background-color: var(--sidebar-bg);
+  border-right: 1px solid var(--border-color);
+  padding: 20px 10px;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+}
+
+.nav-header {
+  font-size: 14px;
+  font-weight: bold;
+  padding: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--nav-header-bg);
+  border-radius: 5px;
+  margin-bottom: 20px;
+  color: #fff;
+}
+
+.sidebar h4 {
+  font-size: 11px;
+  text-transform: uppercase;
+  color: var(--accent-pink);
+  margin: 20px 0 10px 10px;
+  letter-spacing: 1px;
+}
+
+.menu { list-style: none; padding: 0; margin: 0; }
+.menu li a {
+  text-decoration: none;
+  color: var(--text-main);
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  padding: 8px 12px;
+  border-radius: 4px;
+  transition: background 0.2s;
+}
+
+.menu li a:hover { background: rgba(255, 255, 255, 0.05); }
+.menu li a.active { background: rgba(255, 255, 255, 0.08); font-weight: 600; }
+
+.icon {
+  margin-right: 12px;
+  width: 20px;
+  text-align: center;
+  font-size: 16px;
+}
+
+.todo-box { margin-top: 30px; padding: 0 10px; }
+.todo-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 14px;
+  margin-bottom: 8px;
+  color: var(--text-main);
+}
+.todo-item input { margin-right: 10px; accent-color: var(--notion-blue); }
+.todo-item span { flex-grow: 1; }
+.del-btn {
+  background: none;
+  border: none;
+  color: var(--muted);
+  cursor: pointer;
+  font-size: 18px;
+  padding: 0 5px;
+  line-height: 1;
+  display: none;
+}
+.todo-item:hover .del-btn { display: block; color: #ff4d4d; }
+
+/* ===== MAIN AREA ===== */
+.main-area {
+  flex-grow: 1;
+}
+
+.hero-banner {
+  height: 220px;
+  width: 100%;
+  background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), 
+              url('https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&w=1500&q=80') center/cover no-repeat;
+  position: relative;
+}
+
+.hero-overlay {
+  position: absolute;
+  bottom: -20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--bg);
+  padding: 8px 30px;
+  border-radius: 8px;
+  font-size: 26px;
+  font-weight: 800;
+  border: 1px solid var(--sidebar-border);
+  box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+}
+
+.content-wrap {
+  max-width: 1000px;
+  margin: 60px auto;
+  padding: 0 40px;
+}
+
+.page-breadcrumb {
+  font-size: 13px;
+  color: var(--muted);
+  margin-bottom: 40px;
+}
+
+/* ===== DROPDOWN STYLES ===== */
+.schedule-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 25px 60px;
+}
+
+.day-group {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding-bottom: 5px;
+}
+
+.dropdown-header {
+  width: 100%;
+  background: none;
+  border: none;
+  color: white;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 18px 0;
+  cursor: pointer;
+  font-size: 22px;
+  font-weight: 700;
+  text-align: left;
+  transition: color 0.2s;
+}
+
+.dropdown-header:hover {
+    color: var(--accent-pink);
+}
+
+
+.dropdown-header::before {
+  content: "👇";
+  font-size: 18px;
+  color: var(--muted);
+  transition: transform 0.3s ease;
+}
+
+.day-group.closed .dropdown-header::before {
+  transform: rotate(-90deg);
+}
+
+.task-list {
+  list-style: none;
+  padding-left: 30px;
+  max-height: 1000px;
+  overflow: hidden;
+  transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
+  opacity: 1;
+  padding-bottom: 15px;
+}
+
+.day-group.closed .task-list {
+  max-height: 0;
+  opacity: 0;
+  padding-bottom: 0;
+}
+
+.task-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 14px;
+  font-size: 15px;
+  color: #e0e0e0;
+}
+
+.task-item input[type="checkbox"] {
+  width: 17px;
+  height: 17px;
+  accent-color: var(--accent-pink);
+  cursor: pointer;
+}
+
+.time-tag {
+  font-style: italic;
+  color: var(--muted);
+  font-size: 13px;
+  margin-left: 4px;
+}
+
+@media(max-width: 950px) {
+  .sidebar { display: none; }
+  .main-area { width: 100%; }
+  .schedule-grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<div class="layout">
+  <aside class="sidebar">
+    <div class="nav-header">
+      <a href="index.html" style="color: inherit; text-decoration: none; display: flex; align-items: center; gap: 8px;">
+        <span>🎓</span> <span>DIU Student Manager</span>
+      </a>
+    </div>
+    
+    <h4>Navigation</h4>
+    <ul class="menu">
+            <li><a href="exams and study.html"><span class="icon">📚</span> Exams and Study</a></li>
+            <li><a href="courses.html"><span class="icon">📕</span> Courses</a></li>
+            <li><a href="habit.html"><span class="icon">📅</span> Habit tracker</a></li>
+            <li><a href="hacking.html"><span class="active"><span class="icon" style="color:#ff4d8d">/&gt;</span> Hacking</a></li>
+            <li><a href="goals.html"><span class="icon">🎯</span> Goals</a></li>
+            <li><a href="planner.html"><span class="icon">🥪</span> Planner</a></li>
+            <li><a href="morning.html"><span class="icon">😀</span> Morning Routine</a></li>
+            <li><a href="night.html"><span class="icon">🌚</span> Night Routine</a></li>
+            <li><a href="allclasses.html"><span class="icon">田</span> All Classes</a></li>
+            <li><a href="assignments.html"><span class="icon">田</span> Assignments</a></li>
+            <li><a href="weekend.html"><span class="icon">🌙</span>Weekend</a></li>
+        </ul>
+        <div class="todo-box">
+            <h4>To Do List:</h4>
+            <div style="display: flex; gap: 5px; margin-bottom: 15px;">
+                <input type="text" id="todoInput" placeholder="New task..." style="flex-grow: 1; background: #2d2d2d; border: 1px solid var(--border-color); color: white; padding: 5px; border-radius: 4px; font-size: 12px;">
+                <button onclick="addTodo()" style="background: var(--notion-blue); border: none; color: white; border-radius: 4px; padding: 0 10px; cursor: pointer; font-weight: bold;">+</button>
+            </div>
+            <div id="todoList">
+                <div class="todo-item"><input type="checkbox"> <span>Daily Class</span> <button class="del-btn" onclick="this.parentElement.remove()">×</button></div>
+                <div class="todo-item"><input type="checkbox"> <span>Assignment</span> <button class="del-btn" onclick="this.parentElement.remove()">×</button></div>
+                <div class="todo-item"><input type="checkbox"> <span>Java Course</span> <button class="del-btn" onclick="this.parentElement.remove()">×</button></div>
+            </div>
+        </div>
+  </aside>
+
+  <div class="main-area">
+    <div class="hero-banner">
+      <div class="hero-overlay">/> Job Prepation</div>
+    </div>
+
+    <div class="content-wrap">
+      <div class="page-breadcrumb">
+        /> daily task planner... / <span style="color:white; font-weight:700;"> /> Job Preparation</span>
+      </div>
+
+      <div class="schedule-grid">
+        <div class="day-group">
+          <button class="dropdown-header">Monday</button>
+          <div class="task-list">
+            <div class="task-item"><input type="checkbox"> <span>Data Structures & Algorithms <span class="time-tag">1:00-2:00pm</span></span></div>
+            <div class="task-item"><input type="checkbox"> <span>Java Programming <span class="time-tag">3:30-4:30pm</span></span></div>
+            <div class="task-item"><input type="checkbox"> <span>SQL Practice <span class="time-tag">5:30-6:30pm</span></span></div>
+          </div>
+        </div>
+
+        <div class="day-group">
+          <button class="dropdown-header">Tuesday</button>
+          <div class="task-list">
+            <div class="task-item"><input type="checkbox"> <span>Operating System Concepts <span class="time-tag">1:00-2:00 pm</span></span></div>
+            <div class="task-item"><input type="checkbox"> <span>DBMS Interview Questions <span class="time-tag">3:30-4:30pm</span></span></div>
+            <div class="task-item"><input type="checkbox"> <span>HTML CSS Practice <span class="time-tag">5:30-6:30pm</span></span></div>
+          </div>
+        </div>
+
+        <div class="day-group">
+          <button class="dropdown-header">Wednesday</button>
+          <div class="task-list">
+            <div class="task-item"><input type="checkbox"> <span>Object Oriented Programming <span class="time-tag">1:00-2:00pm</span></span></div>
+            <div class="task-item"><input type="checkbox"> <span>Java Script Concepts <span class="time-tag">3:30-4:30pm</span></span></div>
+            <div class="task-item"><input type="checkbox"> <span>Leetcode Problems <span class="time-tag">5:30-6:30pm</span></span></div>
+          </div>
+        </div>
+
+        <div class="day-group">
+          <button class="dropdown-header">Thrusday</button>
+          <div class="task-list">
+            <div class="task-item"><input type="checkbox"> <span>Computer Network <span class="time-tag">1:00-2:00pm</span></span></div>
+            <div class="task-item"><input type="checkbox"> <span>Java Collection Framework <span class="time-tag">3:30-4:30pm</span></span></div>
+            <div class="task-item"><input type="checkbox"> <span>Mini Project Development <span class="time-tag">5:30-6:30pm</span></span></div>
+          </div>
+        </div>
+
+        <div class="day-group">
+          <button class="dropdown-header">Friday</button>
+          <div class="task-list">
+            <div class="task-item"><input type="checkbox"> <span>System Design Basics <span class="time-tag">1:00-2:00pm</span></span></div>
+            <div class="task-item"><input type="checkbox"> <span>SQL Query Practice <span class="time-tag">3:30-4:30pm</span></span></div>
+            <div class="task-item"><input type="checkbox"> <span>React.js Basics <span class="time-tag">5:30-6:30pm</span></span></div>
+          </div>
+        </div>
+
+        <div class="day-group">
+          <button class="dropdown-header">Saturday</button>
+          <div class="task-list">
+            <div class="task-item"><input type="checkbox"> <span>Aptitude Prepation <span class="time-tag">7:00-10:00 am</span></span></div>
+            <div class="task-item"><input type="checkbox"> <span>HR Interview Questions <span class="time-tag">10:00-1:00 pm</span></span></div>
+            <div class="task-item"><input type="checkbox"> <span>Resume and LinkedIn Update <span class="time-tag">1:00-4:00pm</span></span></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function addTodo() {
+    const input = document.getElementById('todoInput');
+    const text = input.value.trim();
+    if (text !== "") {
+      const todoList = document.getElementById('todoList');
+      const div = document.createElement('div');
+      div.className = 'todo-item';
+      div.innerHTML = `
+        <input type="checkbox">
+        <span>${text}</span>
+        <button class="del-btn" onclick="this.parentElement.remove()">×</button>
+      `;
+      todoList.appendChild(div);
+      input.value = "";
+    }
+  }
+
+  document.getElementById('todoInput').addEventListener('keypress', function (e) {
+    if (e.key === 'Enter') addTodo();
+  });
+
+  document.querySelectorAll('.dropdown-header').forEach(header => {
+    header.addEventListener('click', () => {
+      const group = header.parentElement;
+      group.classList.toggle('closed');
+    });
+  });
+</script>
+
+</body>
+</html>

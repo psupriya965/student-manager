@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Habit Tracker - DIU Student Manager</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+:root{
+  --bg:#0f1117;
+  --sidebar-bg:#1a1518;
+  --border-color:#2d2d2d;
+  --accent-burgundy:#4a1d2e;
+  --text-main:#ffffff;
+  --text-dim:#9b9b9b;
+  --notion-blue:#337ea9;
+  --muted:#a8b4cb;
+  --accent-pink:#ff4d8d;
+}
+
+*{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial;}
+body{
+  background:
+    radial-gradient(900px 500px at 75% -15%, rgba(255, 77, 141, 0.16), transparent 55%),
+    radial-gradient(700px 420px at -10% 30%, rgba(51, 126, 169, 0.14), transparent 55%),
+    var(--bg);
+  color:var(--text-main);
+}
+
+.layout{display:flex;min-height:100vh;}
+
+/* ===== SIDEBAR ===== */
+.sidebar{
+  width:260px;
+  background:var(--sidebar-bg);
+  border-right:1px solid var(--border-color);
+  padding:20px 10px;
+  height:100vh;
+  position:sticky;
+  top:0;
+  overflow-y:auto;
+}
+
+.nav-header{
+  background:var(--accent-burgundy);
+  padding:10px;
+  border-radius:5px;
+  font-weight:bold;
+  font-size:14px;
+  margin-bottom:20px;
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+
+.sidebar h4 {
+  font-size: 11px;
+  text-transform: uppercase;
+  color: #ff4d8d;
+  margin: 20px 0 10px 10px;
+  letter-spacing: 1px;
+}
+
+.menu { list-style: none; padding: 0; margin: 0; }
+.menu li a {
+  display: flex;
+  align-items: center;
+  padding: 8px 12px;
+  color: var(--text-main);
+  text-decoration: none;
+  font-size: 14px;
+  border-radius: 4px;
+  transition: background 0.2s;
+}
+.menu li a:hover { background: rgba(255, 255, 255, 0.05); }
+.icon { margin-right: 12px; width: 20px; text-align: center; font-size: 16px; }
+
+.todo-box { margin-top: 30px; padding: 0 10px; }
+.todo-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 14px;
+  margin-bottom: 8px;
+  color: var(--text-main);
+}
+.todo-item input { margin-right: 10px; accent-color: var(--notion-blue); }
+.todo-item span { flex-grow: 1; }
+
+.del-btn {
+  background: none;
+  border: none;
+  color: var(--text-dim);
+  cursor: pointer;
+  font-size: 18px;
+  padding: 0 5px;
+  line-height: 1;
+  display: none;
+}
+.todo-item:hover .del-btn { display: block; color: #ff4d4d; }
+
+/* ===== MAIN ===== */
+.main-area{flex-grow:1;min-width:0;}
+
+.hero-banner{
+  height:165px;
+  background:
+    linear-gradient(120deg, rgba(74, 29, 46, 0.95), rgba(42, 19, 40, 0.82)),
+    radial-gradient(circle at 20% 40%, rgba(255, 77, 141, 0.25), transparent 35%);
+  width:100%;
+  border-bottom:1px solid #2f3240;
+}
+
+.content-wrap{
+  max-width:1100px;
+  margin:-56px auto 40px;
+  padding:0 26px;
+}
+
+.page-icon{
+  font-size:62px;
+  margin-bottom:8px;
+  display:block;
+  text-shadow:0 8px 18px rgba(0,0,0,0.35);
+}
+
+.page-title{
+  font-size:50px;
+  font-weight:750;
+  letter-spacing:-0.6px;
+  margin-bottom:28px;
+}
+
+.section-container{
+  margin-bottom:28px;
+  background:linear-gradient(180deg, rgba(24, 30, 44, 0.8), rgba(16, 21, 33, 0.7));
+  border:1px solid #2a3245;
+  border-radius:16px;
+  padding:18px;
+  box-shadow:0 14px 30px rgba(0,0,0,0.25);
+}
+
+.section-header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  border-bottom:1px solid #333d54;
+  padding-bottom:10px;
+  margin-bottom:16px;
+  gap:10px;
+}
+
+.section-header h2{
+  margin:0;
+  font-size:24px;
+  font-weight:700;
+}
+
+.section-icons{
+  color:var(--muted);
+  display:flex;
+  gap:10px;
+  align-items:center;
+}
+
+.section-icons span{
+  width:24px;
+  height:24px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:6px;
+  background:rgba(255,255,255,0.03);
+  border:1px solid rgba(255,255,255,0.08);
+}
+
+.toolbar{display:flex;justify-content:flex-end;margin-bottom:14px;}
+
+/* Calendar */
+.calendar{
+  background:#101622;
+  border:1px solid #2a3140;
+  border-radius:10px;
+  overflow:hidden;
+}
+
+.cal-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:16px 18px;
+  border-bottom:1px solid #2a3140;
+  background:#0e1420;
+  gap:10px;
+}
+
+.cal-header button{
+  background:#222b3d;
+  border:1px solid #3a4761;
+  color:#9fb2d0;
+  padding:6px 10px;
+  border-radius:6px;
+  cursor:pointer;
+}
+
+.cal-header h2{
+  margin:0;
+  font-size:30px;
+  color:#ffffff;
+}
+
+.cal-today-btn{
+  background:transparent !important;
+  border:none !important;
+}
+
+.cal-grid{
+  display:grid;
+  grid-template-columns:repeat(7,1fr);
+  padding:0;
+  border-top:1px solid #2a3140;
+}
+
+.weekday-cell{
+  height:34px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:#97a9c5;
+  font-size:13px;
+  border-right:1px solid #2a3140;
+  border-bottom:1px solid #2a3140;
+  background:#0d1320;
+}
+
+.date-cell{
+  height:72px;
+  display:flex;
+  align-items:flex-start;
+  justify-content:flex-end;
+  padding:8px;
+  border-right:1px solid #2a3140;
+  border-bottom:1px solid #2a3140;
+  font-size:14px;
+  color:#9fb2d0;
+  cursor:pointer;
+  position:relative;
+  background:#0b101a;
+}
+
+.date-cell:hover{background:#121a28}
+.date-cell.empty-cell{cursor:default}
+.date-cell.active{background:rgba(164,32,53,0.22);}
+.date-cell.active .day-number{background:#ff4d62;color:#fff;}
+
+.day-number{
+  min-width:24px;
+  height:24px;
+  padding:0 7px;
+  border-radius:999px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+.heat-0{background:#0b101a}
+.heat-1{background:#132235}
+.heat-2{background:#19304a}
+.heat-3{background:#1e3d5a}
+.heat-4{background:#254c72}
+
+/* Table */
+table{width:100%;border-collapse:collapse;margin-bottom:0}
+th,td{border:1px solid #32405a;padding:8px;text-align:center}
+th{background:#202b3f;color:#d6ddef}
+
+td{background:rgba(21,30,45,0.75);}
+
+.progress-bar{height:6px;background:#333;border-radius:5px;overflow:hidden}
+.progress-fill{height:100%;background:var(--notion-blue)}
+
+button.small{
+  padding:4px 8px;
+  background:var(--notion-blue);
+  border:none;
+  color:white;
+  border-radius:4px;
+  cursor:pointer;
+  font-size:12px;
+}
+
+/* Summary */
+.summary{
+  display:flex;
+  gap:30px;
+  margin-top:0;
+  background:linear-gradient(180deg, #1b2433, #151e2d);
+  padding:15px;
+  border:1px solid #32405a;
+  border-radius:10px;
+}
+
+.chart-card{
+  background:linear-gradient(180deg, #1b2433, #151e2d);
+  border:1px solid #32405a;
+  border-radius:10px;
+  padding:14px;
+}
+
+canvas{background:transparent;border:none;margin-top:0;width:100%;max-height:260px;}
+
+@media(max-width:1000px){
+  .sidebar{display:none;}
+  .content-wrap{margin-top:-48px;padding:0 14px 30px;}
+  .page-title{font-size:36px;}
+  .section-container{padding:14px;border-radius:14px;}
+  .cal-header h2{font-size:24px;}
+}
+</style>
+</head>
+
+<body>
+<div class="layout">
+<aside class="sidebar">
+  <div class="nav-header">
+    <a href="index.html" style="color: inherit; text-decoration: none; display: flex; align-items: center; gap: 8px;">
+      <span>🎓</span> <span>DIU Student Manager</span>
+    </a>
+  </div>
+
+  <h4>Navigation</h4>
+  <ul class="menu">
+    <li><a href="exams and study.html"><span class="icon">📚</span> Exams and Study</a></li>
+    <li><a href="courses.html"><span class="icon">📕</span> Courses</a></li>
+    <li><a href="habit.html" class="active"><span class="icon">📅</span> Habit tracker</a></li>
+    <li><a href="hacking.html"><span class="icon" style="color:#ff4d8d">/&gt;</span> Hacking</a></li>
+    <li><a href="goals.html"><span class="icon">🎯</span> Goals</a></li>
+    <li><a href="planner.html"><span class="icon">🥪</span> Planner</a></li>
+    <li><a href="morning.html"><span class="icon">😀</span> Morning Routine</a></li>
+    <li><a href="night.html"><span class="icon">🌚</span> Night Routine</a></li>
+    <li><a href="allclasses.html"><span class="icon">田</span> All Classes</a></li>
+    <li><a href="assignments.html"><span class="icon">田</span> Assignments</a></li>
+    <li><a href="weekend.html"><span class="icon">🌙</span>Weekend</a></li>
+  </ul>
+  <div class="todo-box">
+    <h4>To Do List:</h4>
+    <div style="display: flex; gap: 5px; margin-bottom: 15px;">
+      <input type="text" id="todoInput" placeholder="New task..." style="flex-grow: 1; background: #2d2d2d; border: 1px solid var(--border-color); color: white; padding: 5px; border-radius: 4px; font-size: 12px;">
+      <button onclick="addTodo()" style="background: var(--notion-blue); border: none; color: white; border-radius: 4px; padding: 0 10px; cursor: pointer; font-weight: bold;">+</button>
+    </div>
+    <div id="todoList">
+      <div class="todo-item"><input type="checkbox"> <span>Daily Class</span> <button class="del-btn" onclick="this.parentElement.remove()">×</button></div>
+      <div class="todo-item"><input type="checkbox"> <span>Assignment</span> <button class="del-btn" onclick="this.parentElement.remove()">×</button></div>
+      <div class="todo-item"><input type="checkbox"> <span>JavaS Course</span> <button class="del-btn" onclick="this.parentElement.remove()">×</button></div>
+    </div>
+  </div>
+</aside>
+
+<div class="main-area">
+  <div class="hero-banner"></div>
+
+  <main class="content-wrap">
+    <span class="page-icon">🗓️</span>
+    <h1 class="page-title">Habit Tracker</h1>
+
+    <section class="section-container">
+      <div class="section-header">
+        <h2>Calendar Heatmap</h2>
+        <div class="section-icons"><span>≡</span><span>⌕</span></div>
+      </div>
+      <div class="calendar">
+        <div class="cal-header">
+          <button onclick="prevMonth()">←</button>
+          <h2 id="monthName"></h2>
+          <button onclick="nextMonth()">→</button>
+          <button class="cal-today-btn" onclick="goToday()">Today</button>
+        </div>
+        <div class="cal-grid" id="calendar"></div>
+      </div>
+    </section>
+
+    <section class="section-container">
+      <div class="section-header">
+        <h2>Weekly Habit Table</h2>
+        <div class="section-icons"><span>▦</span></div>
+      </div>
+      <div class="toolbar">
+        <button class="small" onclick="addHabit()">+ Add Habit</button>
+      </div>
+      <table id="habitTable"></table>
+    </section>
+
+    <section class="section-container">
+      <div class="section-header">
+        <h2>Summary</h2>
+        <div class="section-icons"><span>◔</span></div>
+      </div>
+      <div class="summary">
+        <div><strong>Monthly Completion:</strong> <span id="monthly">0%</span></div>
+        <div><strong>Streak:</strong> <span id="streak">0</span> days</div>
+      </div>
+    </section>
+
+    <section class="section-container">
+      <div class="section-header">
+        <h2>Last 7 Days</h2>
+        <div class="section-icons"><span>↗</span></div>
+      </div>
+      <div class="chart-card">
+        <canvas id="progressChart" height="100"></canvas>
+      </div>
+    </section>
+  </main>
+</div>
+</div>
+
+<script>
+const KEY="diu_habit_tracker_final";
+let state={
+  month:new Date().getMonth(),
+  year:new Date().getFullYear(),
+  habits:["Coding","Cycling","Driving"],
+  data:{}
+};
+
+function save(){localStorage.setItem(KEY,JSON.stringify(state))}
+function load(){const s=localStorage.getItem(KEY); if(s) state=JSON.parse(s)}
+load();
+
+const monthNames=["January","February","March","April","May","June","July","August","September","October","November","December"];
+
+function renderCalendar(){
+  const grid=document.getElementById("calendar");
+  grid.innerHTML="";
+  document.getElementById("monthName").innerText=monthNames[state.month]+" "+state.year;
+  const today = new Date();
+  const isCurrentMonth = state.month === today.getMonth() && state.year === today.getFullYear();
+
+  const first=new Date(state.year,state.month,1);
+  const total=new Date(state.year,state.month+1,0).getDate();
+  const start=(first.getDay()+1)%7; // Saturday-first calendar
+
+  const weekdays = ["Sat", "Sun", "Mon", "Tue", "Wed", "Thu", "Fri"];
+  weekdays.forEach(day => {
+    grid.innerHTML += `<div class="weekday-cell">${day}</div>`;
+  });
+
+  for(let i=0;i<start;i++) grid.innerHTML+='<div class="date-cell empty-cell"></div>';
+
+  for(let d=1;d<=total;d++){
+    const key=new Date(state.year,state.month,d).toISOString().split("T")[0];
+    const dayData=state.data[key]||{};
+    let count=0;
+    state.habits.forEach(h=>{if(dayData[h]) count++});
+    const level=Math.min(4,count);
+    const activeClass = (isCurrentMonth && d === today.getDate()) ? " active" : "";
+    grid.innerHTML+=`<div class="date-cell heat-${level}${activeClass}" onclick="selectDate(this)"><span class="day-number">${d}</span></div>`;
+  }
+}
+
+function selectDate(el){
+  document.querySelectorAll(".date-cell").forEach(c=>c.classList.remove("active"));
+  el.classList.add("active");
+}
+
+function prevMonth(){state.month--;if(state.month<0){state.month=11;state.year--;}renderCalendar();save();}
+function nextMonth(){state.month++;if(state.month>11){state.month=0;state.year++;}renderCalendar();save();}
+function goToday(){const n=new Date();state.month=n.getMonth();state.year=n.getFullYear();renderCalendar();save();}
+
+function renderTable(){
+  const table=document.getElementById("habitTable");
+  table.innerHTML="";
+  let header="<tr><th>Day</th><th>Date</th>";
+  state.habits.forEach((h,i)=>header+=`<th ondblclick="renameHabit(${i})">${h} <button onclick="deleteHabit(${i})" class="small">X</button></th>`);
+  header+="<th>Progress</th></tr>";
+  table.innerHTML+=header;
+
+  const today=new Date();
+  const start=new Date(today); start.setDate(today.getDate()-today.getDay());
+
+  let total=0,done=0;
+
+  for(let i=0;i<7;i++){
+    const d=new Date(start); d.setDate(start.getDate()+i);
+    const key=d.toISOString().split("T")[0];
+    if(!state.data[key]) state.data[key]={};
+
+    let row="<tr>";
+    row+=`<td>${d.toLocaleDateString("en-US",{weekday:"short"})}</td>`;
+    row+=`<td>${d.toLocaleDateString("en-GB")}</td>`;
+
+    let dailyDone=0;
+    state.habits.forEach(h=>{
+      const checked=state.data[key][h]||false;
+      if(checked) dailyDone++;
+      row+=`<td><input type="checkbox" ${checked?"checked":""} onchange="toggle('${key}','${h}',this.checked)"></td>`;
+      total++; if(checked) done++;
+    });
+
+    const percent=Math.round((dailyDone/state.habits.length)*100)||0;
+    row+=`<td><div class="progress-bar"><div class="progress-fill" style="width:${percent}%"></div></div>${percent}%</td>`;
+    row+="</tr>";
+    table.innerHTML+=row;
+  }
+
+  const monthlyPercent = total ? Math.round((done / total) * 100) : 0;
+  document.getElementById("monthly").innerText = monthlyPercent + "%";
+  calculateStreak();
+  renderChart();
+  save();
+}
+
+function toggle(date,habit,val){state.data[date][habit]=val;renderTable();renderCalendar()}
+function addHabit(){const n=prompt("New Habit:"); if(n){state.habits.push(n);renderTable();save();}}
+function deleteHabit(i){state.habits.splice(i,1);renderTable();save();}
+function renameHabit(i){const n=prompt("Rename Habit:",state.habits[i]); if(n){state.habits[i]=n;renderTable();save();}}
+
+function calculateStreak(){
+  let streak=0;
+  const today=new Date();
+  for(let i=0;i<365;i++){
+    const d=new Date(today); d.setDate(today.getDate()-i);
+    const key=d.toISOString().split("T")[0];
+    const dayData=state.data[key];
+    if(!dayData) break;
+    const allDone=state.habits.every(h=>dayData[h]);
+    if(allDone) streak++; else break;
+  }
+  document.getElementById("streak").innerText=streak;
+}
+
+let chart;
+function renderChart(){
+  const canvas = document.getElementById("progressChart");
+  const ctx = canvas.getContext("2d");
+  const labels=[],values=[];
+  const today=new Date();
+  const start=new Date(today); start.setDate(today.getDate()-6);
+
+  for(let i=0;i<7;i++){
+    const d=new Date(start); d.setDate(start.getDate()+i);
+    const key=d.toISOString().split("T")[0];
+    const dayData=state.data[key]||{};
+    let count=0;
+    state.habits.forEach(h=>{if(dayData[h]) count++});
+    labels.push(d.toLocaleDateString("en-US",{weekday:"short"}));
+    values.push(count);
+  }
+
+  if (typeof Chart !== "undefined") {
+    if(chart) chart.destroy();
+    chart=new Chart(ctx,{
+      type:"line",
+      data:{labels:labels,datasets:[{data:values,borderColor:"#337ea9"}]},
+      options:{plugins:{legend:{display:false}}}
+    });
+    return;
+  }
+
+  const w = canvas.width;
+  const h = canvas.height;
+  const padding = 28;
+  const maxVal = Math.max(1, ...values);
+  const xStep = (w - padding * 2) / 6;
+  const yScale = (h - padding * 2) / maxVal;
+
+  ctx.clearRect(0, 0, w, h);
+  ctx.strokeStyle = "#2d2d2d";
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(padding, h - padding);
+  ctx.lineTo(w - padding, h - padding);
+  ctx.moveTo(padding, padding);
+  ctx.lineTo(padding, h - padding);
+  ctx.stroke();
+
+  ctx.strokeStyle = "#337ea9";
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  values.forEach((v, i) => {
+    const x = padding + i * xStep;
+    const y = h - padding - (v * yScale);
+    if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+  });
+  ctx.stroke();
+
+  ctx.fillStyle = "#337ea9";
+  values.forEach((v, i) => {
+    const x = padding + i * xStep;
+    const y = h - padding - (v * yScale);
+    ctx.beginPath();
+    ctx.arc(x, y, 3, 0, Math.PI * 2);
+    ctx.fill();
+  });
+}
+
+renderCalendar();
+renderTable();
+
+function addTodo() {
+  const input = document.getElementById('todoInput');
+  const text = input.value.trim();
+  if (text !== "") {
+    const todoList = document.getElementById('todoList');
+    const div = document.createElement('div');
+    div.className = 'todo-item';
+    div.innerHTML = `
+      <input type="checkbox">
+      <span>${text}</span>
+      <button class="del-btn" onclick="this.parentElement.remove()">×</button>
+    `;
+    todoList.appendChild(div);
+    input.value = "";
+  }
+}
+
+document.getElementById('todoInput').addEventListener('keypress', function (e) {
+  if (e.key === 'Enter') addTodo();
+});
+</script>
+
+</body>
+</html>

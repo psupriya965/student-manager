@@ -1,0 +1,1186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DIU Student Manager</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --bg-black: #0f0f0f;
+            --sidebar-bg: #1a1518;
+            --section-header-bg: #2d1b24;
+            --card-bg: #1e1e1e;
+            --text-main: #ffffff;
+            --text-dim: #9b9b9b;
+            --accent-burgundy: #4a1d2e;
+            --border-color: #2d2d2d;
+            --notion-blue: #337ea9;
+            --tag-purple: #5c2b4a;
+            --tag-orange: #6e3630;
+            --tag-green: #2b5c31;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background:
+                radial-gradient(900px 500px at 75% -15%, rgba(255, 77, 141, 0.16), transparent 55%),
+                radial-gradient(700px 420px at -10% 30%, rgba(51, 126, 169, 0.14), transparent 55%),
+                var(--bg-black);
+            color: var(--text-main);
+        }
+
+        .layout { display: flex; min-height: 100vh; }
+
+        /* --- SIDEBAR NAVIGATION --- */
+        .sidebar {
+            width: 260px;
+            background-color: var(--sidebar-bg);
+            padding: 20px 10px;
+            border-right: 1px solid var(--border-color);
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+        .nav-header {
+            font-size: 14px;
+            font-weight: bold;
+            padding: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--accent-burgundy);
+            border-radius: 5px;
+            margin-bottom: 20px;
+            color: #fff;
+        }
+
+        .sidebar h4 {
+            font-size: 11px;
+            text-transform: uppercase;
+            color: #ff4d8d;
+            margin: 20px 0 10px 10px;
+            letter-spacing: 1px;
+        }
+
+        .menu { list-style: none; padding: 0; margin: 0; }
+        .menu li a {
+            display: flex;
+            align-items: center;
+            padding: 8px 12px;
+            color: var(--text-main);
+            text-decoration: none;
+            font-size: 14px;
+            border-radius: 4px;
+            transition: .2s;
+        }
+        .menu li a:hover { background: rgba(255, 255, 255, 0.05); }
+        .menu li a.active { background: rgba(255, 255, 255, 0.08); }
+        .icon { margin-right: 12px; width: 20px; text-align: center; font-size: 16px; }
+
+        .todo-box { margin-top: 30px; padding: 0 10px; }
+        .todo-item { display: flex; align-items: center; font-size: 14px; margin-bottom: 8px; color: var(--text-main); }
+        .todo-item input { margin-right: 10px; accent-color: var(--notion-blue); }
+
+        /* --- MAIN CONTENT (Courses-style shell) --- */
+        .main-area { flex-grow: 1; min-width: 0; }
+
+        .hero-banner {
+            height: 165px;
+            background:
+                linear-gradient(120deg, rgba(74, 29, 46, 0.95), rgba(42, 19, 40, 0.82)),
+                radial-gradient(circle at 20% 40%, rgba(255, 77, 141, 0.25), transparent 35%);
+            width: 100%;
+            border-bottom: 1px solid #2f3240;
+        }
+
+        .content-wrap {
+            max-width: 1100px;
+            margin: -56px auto 40px;
+            padding: 0 26px;
+        }
+
+        .page-icon {
+            font-size: 62px;
+            margin-bottom: 8px;
+            display: block;
+            text-shadow: 0 8px 18px rgba(0, 0, 0, 0.35);
+            text-align: center;
+        }
+
+        .page-title {
+            font-size: 50px;
+            font-weight: 750;
+            letter-spacing: -0.6px;
+            margin-bottom: 14px;
+            text-align: center;
+        }
+
+        .top-meta {
+            font-size: 13px;
+            color: var(--text-dim);
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .section-container {
+            margin-bottom: 34px;
+            background: linear-gradient(180deg, rgba(24, 30, 44, 0.8), rgba(16, 21, 33, 0.7));
+            border: 1px solid #2a3245;
+            border-radius: 16px;
+            padding: 18px 18px 16px;
+            box-shadow: 0 14px 30px rgba(0, 0, 0, 0.25);
+        }
+        .full-width-header {
+            border-bottom: 1px solid #333d54;
+            padding-bottom: 10px;
+            margin-bottom: 16px;
+            font-size: 24px;
+            font-weight: 700;
+            letter-spacing: -0.2px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .sub-header { font-size: 24px; margin: 12px 0 12px 0; display: flex; align-items: center; gap: 10px; }
+
+        /* --- CLASS GRID --- */
+        .class-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 15px;
+        }
+
+        .class-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 15px;
+            transition: transform 0.2s;
+        }
+        .class-card:hover { transform: translateY(-2px); }
+        .class-card h3 { font-size: 14px; margin: 0 0 10px 0; display: flex; align-items: center; gap: 8px; }
+        .class-card .code { font-size: 11px; color: var(--text-dim); display: block; margin-bottom: 5px; }
+        .tag { font-size: 11px; padding: 2px 6px; border-radius: 3px; display: inline-block; margin-bottom: 10px; }
+        .class-card ul { padding: 0; list-style: none; margin: 0; font-size: 12px; }
+        .class-card li { margin-bottom: 4px; color: var(--text-main); display: flex; align-items: center; gap: 5px; }
+
+        /*--- TODO: Add more styles for the habit tracker section ---*/ 
+        .todo-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between; /* Space setup for delete button */
+            font-size: 14px;
+            margin-bottom: 8px;
+            color: var(--text-main);
+            
+        }
+
+        .todo-item span { flex-grow: 1; }
+
+        .del-btn {
+            background: none;
+            border: none;
+            color: var(--text-dim);
+            cursor: pointer;
+            font-size: 18px;
+            padding: 0 5px;
+            line-height: 1;
+            display: none; /* Mouse hover korle show korbe */
+        }
+
+        .todo-item:hover .del-btn {
+            display: block;
+            color: #ff4d4d;
+        }
+
+        /* --- HABIT TRACKER --- */
+        .habit-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 20px;
+        }
+        .habit-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            padding: 20px;
+            border-radius: 10px;
+        }
+        .habit-card h4 { margin: 0 0 5px 0; font-size: 15px; color: var(--notion-blue); }
+        .habit-card .date-sub { font-size: 11px; color: var(--text-dim); margin-bottom: 15px; }
+        .habit-check-group { margin-bottom: 15px; }
+        .habit-check-group label { display: flex; align-items: center; font-size: 13px; margin-bottom: 8px; cursor: pointer; }
+        
+        .progress-wrapper { margin-top: 15px; }
+        .progress-bar { background: #333; height: 8px; border-radius: 4px; overflow: hidden; }
+        .progress-fill { background: var(--notion-blue); height: 100%; width: 0%; transition: width 0.3s ease; }
+        .progress-label { font-size: 12px; margin-top: 5px; color: var(--text-dim); }
+
+        .new-btn {
+            border: 1px dashed var(--border-color);
+            color: var(--text-dim);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 13px;
+            min-height: 150px;
+            border-radius: 8px;
+        }
+        .new-btn:hover { background: rgba(255, 255, 255, 0.02); }
+
+        .assignment-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .assignment-item {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 12px;
+        }
+
+        .assignment-item h3 {
+            margin: 0 0 8px 0;
+            font-size: 14px;
+        }
+
+        .assignment-item p {
+            margin: 4px 0;
+            font-size: 12px;
+            color: var(--text-dim);
+        }
+
+        .chart-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 14px;
+        }
+
+        .chart-card canvas {
+            width: 100%;
+            max-height: 260px;
+        }
+
+        .assignment-status {
+            font-weight: 700;
+            font-size: 12px;
+        }
+
+        .assignment-completed { color: #67d17c; }
+        .assignment-overdue { color: #ff6b6b; }
+        .assignment-pending { color: #f6c453; }
+
+        .course-progress-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 12px;
+        }
+
+        .course-progress-item {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 12px;
+        }
+
+        .course-progress-item h3 {
+            margin: 0 0 8px 0;
+            font-size: 14px;
+        }
+
+        .course-progress-item p {
+            margin: 4px 0;
+            font-size: 12px;
+            color: var(--text-dim);
+        }
+
+        .progress-badge {
+            display: inline-block;
+            margin-top: 6px;
+            font-size: 11px;
+            padding: 2px 8px;
+            border-radius: 4px;
+            background: var(--tag-green);
+            color: #d8ffe1;
+            font-weight: 700;
+        }
+
+        .dropdown-list {
+            display: grid;
+            gap: 12px;
+            margin-top: 12px;
+        }
+
+        .task-dropdown {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .task-dropdown summary {
+            list-style: none;
+            cursor: pointer;
+            padding: 12px 14px;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-main);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .task-dropdown summary::-webkit-details-marker { display: none; }
+
+        .task-dropdown .dropdown-body {
+            border-top: 1px solid var(--border-color);
+            padding: 12px 14px;
+            font-size: 12px;
+            color: var(--text-dim);
+        }
+
+        .task-dropdown .dropdown-body p { margin: 6px 0; }
+        .dropdown-list.collapsed { display: none; }
+        .dropdown-toggle { cursor: pointer; user-select: none; }
+
+        .weekly-progress-wrap {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 14px;
+        }
+
+        .weekly-progress-title {
+            font-size: 13px;
+            color: var(--text-dim);
+            margin-bottom: 10px;
+        }
+
+        .weekly-progress-bar {
+            height: 10px;
+            background: #333b4d;
+            border-radius: 999px;
+            overflow: hidden;
+            margin-bottom: 8px;
+        }
+
+        .weekly-progress-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #337ea9, #4cafef);
+            transition: width 0.3s ease;
+        }
+
+        .weekly-progress-text {
+            font-size: 12px;
+            color: var(--text-main);
+            font-weight: 600;
+        }
+
+        .weekly-empty {
+            font-size: 12px;
+            color: var(--text-dim);
+        }
+
+        @media(max-width: 900px) {
+            .sidebar { display: none; }
+            .main-area { width: 100%; }
+            .content-wrap { margin-top: -48px; padding: 0 14px 30px; }
+            .page-title { font-size: 36px; }
+        }
+    </style>
+</head>
+<body>
+<div class="layout">
+    <aside class="sidebar">
+        <div class="nav-header">
+            <a href="index.html" style="color: inherit; text-decoration: none; display: flex; align-items: center; gap: 8px;">
+                <span>🎓</span> <span>DIU Student Manager</span>
+            </a>
+        </div>
+        
+        <h4>Navigation</h4>
+        <ul class="menu">
+            <li><a href="exams and study.html"><span class="icon">📚</span> Exams and Study</a></li>
+            <li><a href="courses.html"><span class="icon">📕</span> Courses</a></li>
+            <li><a href="habit.html"><span class="icon">📅</span> Habit tracker</a></li>
+            <li><a href="hacking.html"><span class="icon" style="color:#ff4d8d">/&gt;</span> Hacking</a></li>
+            <li><a href="goals.html"><span class="icon">🎯</span> Goals</a></li>
+            <li><a href="planner.html"><span class="icon">🥪</span> Planner</a></li>
+            <li><a href="morning.html"><span class="icon">😀</span> Morning Routine</a></li>
+            <li><a href="night.html"><span class="icon">🌚</span> Night Routine</a></li>
+            <li><a href="allclasses.html"><span class="icon">田</span> All Classes</a></li>
+            <li><a href="assignments.html"><span class="icon">田</span> Assignments</a></li>
+            <li><a href="weekend.html"><span class="icon">🌙</span>Weekend</a></li>
+        </ul>
+        <div class="todo-box">
+            <h4>To Do List:</h4>
+            <div style="display: flex; gap: 5px; margin-bottom: 15px;">
+                <input type="text" id="todoInput" placeholder="New task..." style="flex-grow: 1; background: #2d2d2d; border: 1px solid var(--border-color); color: white; padding: 5px; border-radius: 4px; font-size: 12px;">
+                <button onclick="addTodo()" style="background: var(--notion-blue); border: none; color: white; border-radius: 4px; padding: 0 10px; cursor: pointer; font-weight: bold;">+</button>
+            </div>
+
+            <div id="todoList">
+                <div class="todo-item"><input type="checkbox"> <span>Daily Class</span> <button class="del-btn" onclick="this.parentElement.remove()">×</button></div>
+                <div class="todo-item"><input type="checkbox"> <span>Assignment</span> <button class="del-btn" onclick="this.parentElement.remove()">×</button></div>
+                <div class="todo-item"><input type="checkbox"> <span>Java Course</span> <button class="del-btn" onclick="this.parentElement.remove()">×</button></div>
+            </div>
+        </div>       
+    </aside>
+
+    <div class="main-area">
+        <div class="hero-banner"></div>
+        <main class="content-wrap">
+        <span class="page-icon">🎓</span>
+        <h1 class="page-title">DIU Student Manager</h1>
+        <div class="top-meta">
+            <span><a href="https://www.linkedin.com/in/mdsifatmahmud2002/" target="_blank" style="color: inherit; text-decoration: none;"> Md.Sifat Mahmud</a></span>
+            <span><a href="https://t.me/sifatmahmud2002" target="_blank" style="color: inherit; text-decoration: none;">💬 Telegram</a></span>
+        </div>
+
+        <section class="section-container">
+            <div class="full-width-header">
+                <a href="assignments.html" style="color: inherit; text-decoration: none;">Assignment Tracker</a>
+            </div>
+            <div class="assignment-list" id="dashboardAssignmentList"></div>
+        </section>
+
+        <section class="section-container">
+            <div class="full-width-header">
+                <a href="allclasses.html" style="color: inherit; text-decoration: none;">All Classes</a>
+            </div>
+            <div class="class-grid" id="dashboardClassGrid"></div>
+        </section>
+
+        <section class="section-container">
+            <div class="full-width-header">
+                <a href="courses.html" style="color: inherit; text-decoration: none;">In Progress Courses</a>
+            </div>
+            <div class="course-progress-list" id="dashboardInProgressCourses"></div>
+        </section>
+
+        <section class="section-container">
+            <div class="full-width-header">
+                <a href="habit.html" style="color: inherit; text-decoration: none;">Habit Progress (Last 7 Days)</a>
+            </div>
+            <div class="chart-card">
+                <canvas id="dashboardHabitChart" height="110"></canvas>
+            </div>
+        </section>
+
+        <section class="section-container">
+            <div class="full-width-header">
+                <a href="weekend.html" style="color: inherit; text-decoration: none;">Weekend Weekly Statistics</a>
+            </div>
+            <div class="weekly-progress-wrap">
+                <div id="dashboardWeekendWeeklyStats"></div>
+            </div>
+        </section>
+
+    </main>
+    </div>
+</div>
+
+    <script>
+        document.querySelectorAll('.habit-card').forEach(card => {
+            const checkboxes = card.querySelectorAll('.task-check');
+            const fill = card.querySelector('.progress-fill');
+            const label = card.querySelector('.progress-label');
+            if (!fill || !label) return;
+
+            const updateProgress = () => {
+                const total = checkboxes.length;
+                const checked = card.querySelectorAll('.task-check:checked').length;
+                const percentage = total === 0 ? 0 : Math.round((checked / total) * 100);
+                fill.style.width = percentage + '%';
+                label.innerText = percentage + '%';
+            };
+
+            checkboxes.forEach(cb => cb.addEventListener('change', updateProgress));
+        });
+
+        function addTodo() {
+            const input = document.getElementById('todoInput');
+            const text = input.value.trim();
+            if (text !== "") {
+                const todoList = document.getElementById('todoList');
+                const div = document.createElement('div');
+                div.className = 'todo-item';
+                div.innerHTML = `
+                    <input type="checkbox">
+                    <span>${text}</span>
+                    <button class="del-btn" onclick="this.parentElement.remove()">x</button>
+                `;
+                todoList.appendChild(div);
+                input.value = "";
+            }
+        }
+
+        document.getElementById('todoInput').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') addTodo();
+        });
+
+        const STORAGE_KEY = "diu_classes";
+
+        function normalizeClass(cls, idx) {
+            const normalizedDays = Array.isArray(cls.days)
+                ? cls.days.map(day => String(day || "").trim()).filter(Boolean)
+                : [];
+            const derivedSchedule = (cls.schedule && String(cls.schedule).trim())
+                ? cls.schedule
+                : ((normalizedDays.length && cls.startTime && cls.endTime)
+                    ? (normalizedDays.join("/") + " " + cls.startTime + "-" + cls.endTime)
+                    : "Schedule not set");
+            return {
+                id: cls.id || ("class_" + Date.now() + "_" + idx),
+                name: cls.name || "Untitled Class",
+                code: cls.code || "N/A",
+                teacher: cls.teacher || "Unknown",
+                schedule: derivedSchedule,
+                days: normalizedDays,
+                startTime: cls.startTime || "",
+                endTime: cls.endTime || "",
+                note: cls.note || ""
+            };
+        }
+
+        function getTodayShortDay() {
+            return new Date().toLocaleDateString("en-US", { weekday: "short" });
+        }
+
+        function classMatchesToday(cls, todayShort) {
+            const short = String(todayShort || "").toLowerCase();
+            if (Array.isArray(cls.days) && cls.days.length > 0) {
+                return cls.days.some(day => String(day || "").trim().toLowerCase() === short);
+            }
+            return String(cls.schedule || "").toLowerCase().includes(short);
+        }
+
+        function getClasses() {
+            let classes = JSON.parse(localStorage.getItem(STORAGE_KEY));
+            if (!Array.isArray(classes) || classes.length === 0) return [];
+            const normalized = classes.map((cls, idx) => normalizeClass(cls, idx));
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(normalized));
+            return normalized;
+        }
+
+        function renderDashboardClasses() {
+            const grid = document.getElementById("dashboardClassGrid");
+            if (!grid) return;
+
+            const allClasses = getClasses();
+            const todayShort = getTodayShortDay();
+            const classes = allClasses.filter(cls => classMatchesToday(cls, todayShort)).slice(0, 4);
+            grid.innerHTML = "";
+
+            if (classes.length === 0) {
+                const emptyCard = document.createElement("div");
+                emptyCard.className = "class-card";
+                emptyCard.innerHTML = `
+                    <h3>No class today</h3>
+                    <span class="code">${todayShort}</span>
+                    <span class="tag" style="background:var(--tag-purple)">Today</span>
+                    <ul><li>No scheduled class found for today.</li></ul>
+                `;
+                grid.appendChild(emptyCard);
+            } else {
+                classes.forEach(cls => {
+                    const card = document.createElement("div");
+                    card.className = "class-card";
+                    card.innerHTML = `
+                        <h3>${cls.name}</h3>
+                        <span class="code">${cls.code}</span>
+                        <span class="tag" style="background:var(--tag-orange)">${cls.teacher}</span>
+                        <ul><li>${cls.schedule}</li></ul>
+                    `;
+                    grid.appendChild(card);
+                });
+            }
+
+        }
+
+        const ASSIGNMENT_STORAGE_KEY = "assignment_system_v2";
+        const LEGACY_ASSIGNMENT_STORAGE_KEY = "diu_assignments";
+
+        function getAssignments() {
+            let items = JSON.parse(localStorage.getItem(ASSIGNMENT_STORAGE_KEY));
+            if (!Array.isArray(items)) {
+                const legacyItems = JSON.parse(localStorage.getItem(LEGACY_ASSIGNMENT_STORAGE_KEY));
+                if (Array.isArray(legacyItems) && legacyItems.length) {
+                    items = legacyItems.map((item, idx) => ({
+                        id: item.id || ("assignment_" + Date.now() + "_" + idx),
+                        title: item.title || "Untitled Assignment",
+                        date: item.createdAt || new Date().toLocaleString(),
+                        deadline: item.dueAt || "",
+                        completed: Boolean(item.isCompleted)
+                    }));
+                    localStorage.setItem(ASSIGNMENT_STORAGE_KEY, JSON.stringify(items));
+                } else {
+                    items = [];
+                }
+            }
+            return items.map((item, idx) => {
+                const dueAt = item.dueAt || item.deadline || "";
+                const createdAt = item.createdAt || item.date || new Date().toLocaleString();
+                const isCompleted = Boolean(
+                    typeof item.isCompleted !== "undefined" ? item.isCompleted : item.completed
+                );
+                return {
+                    id: item.id || ("assignment_" + Date.now() + "_" + idx),
+                    title: item.title || "Untitled Assignment",
+                    dueAt: dueAt,
+                    createdAt: createdAt,
+                    isCompleted: isCompleted
+                };
+            });
+        }
+
+        function addNewAssignment() {
+            const items = JSON.parse(localStorage.getItem(ASSIGNMENT_STORAGE_KEY)) || [];
+            items.push({
+                id: Date.now(),
+                title: "Untitled Assignment",
+                date: new Date().toLocaleString(),
+                deadline: "",
+                completed: false
+            });
+            localStorage.setItem(ASSIGNMENT_STORAGE_KEY, JSON.stringify(items));
+            renderDashboardAssignments();
+        }
+
+        function getAssignmentStatus(item) {
+            if (item.isCompleted) return { text: "Completed", cls: "assignment-completed" };
+            if (new Date(item.dueAt).getTime() < Date.now()) return { text: "Time Ended (Overdue)", cls: "assignment-overdue" };
+            return { text: "Not Completed", cls: "assignment-pending" };
+        }
+
+        function formatAssignmentDate(dateStr) {
+            if (!dateStr) return "No deadline";
+            const date = new Date(dateStr);
+            if (Number.isNaN(date.getTime())) return "Invalid date";
+            return date.toLocaleString();
+        }
+
+        function renderDashboardAssignments() {
+            const list = document.getElementById("dashboardAssignmentList");
+            if (!list) return;
+
+            const now = new Date();
+            const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+            const endOfNextWeek = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 7, 23, 59, 59, 999).getTime();
+
+            const items = getAssignments()
+                .filter(item => {
+                    if (item.isCompleted) return false;
+                    const dueTime = new Date(item.dueAt).getTime();
+                    if (Number.isNaN(dueTime)) return false;
+                    return dueTime >= startOfToday && dueTime <= endOfNextWeek;
+                })
+                .sort((a, b) => {
+                    const aTime = new Date(a.dueAt).getTime();
+                    const bTime = new Date(b.dueAt).getTime();
+                    return aTime - bTime;
+                })
+                .slice(0, 6);
+            list.innerHTML = "";
+
+            items.forEach(item => {
+                const status = getAssignmentStatus(item);
+                const row = document.createElement("div");
+                row.className = "assignment-item";
+                row.innerHTML = `
+                    <h3>${item.title}</h3>
+                    <p>Due: ${formatAssignmentDate(item.dueAt)}</p>
+                    <p class="assignment-status ${status.cls}">${status.text}</p>
+                `;
+                row.addEventListener("click", function() { location.href = "assignments.html"; });
+                list.appendChild(row);
+            });
+
+            if (items.length === 0) {
+                const empty = document.createElement("div");
+                empty.className = "assignment-item";
+                empty.innerHTML = "<h3>No assignments for today to next 7 days</h3><p>Add or update deadlines from the Assignments page.</p>";
+                list.appendChild(empty);
+            }
+
+        }
+
+        const HABIT_STORAGE_KEY = "diu_habit_tracker_final";
+        let dashboardHabitChart = null;
+
+        function getHabitState() {
+            const raw = localStorage.getItem(HABIT_STORAGE_KEY);
+            if (!raw) return { habits: [], data: {} };
+            try {
+                const parsed = JSON.parse(raw);
+                return {
+                    habits: Array.isArray(parsed.habits) ? parsed.habits : [],
+                    data: parsed && typeof parsed.data === "object" && parsed.data ? parsed.data : {}
+                };
+            } catch (err) {
+                return { habits: [], data: {} };
+            }
+        }
+
+        function normalizeDashboardText(value) {
+            return String(value || "").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+        }
+
+        function isAssignmentCompletedItem(item) {
+            return Boolean(typeof item.isCompleted !== "undefined" ? item.isCompleted : item.completed);
+        }
+
+        function assignmentMatchesCourseTitle(assignmentTitle, course) {
+            const title = normalizeDashboardText(assignmentTitle);
+            const name = normalizeDashboardText(course && course.name);
+            const code = normalizeDashboardText(course && course.code);
+            if (!title) return false;
+            if (name && (title === name || title.includes(name) || name.includes(title))) return true;
+            if (code && (title === code || title.includes(code) || code.includes(title))) return true;
+            return false;
+        }
+
+        function getDashboardInProgressCourses() {
+            const COURSES_BOARD_KEY = "coursesBoard";
+            const EXAMS_STORAGE_KEY = "diu_exams_by_class";
+            const ASSIGNMENTS_KEY = "assignment_system_v2";
+            const SYNC_PREFIX = "course_sync_";
+
+            const board = JSON.parse(localStorage.getItem(COURSES_BOARD_KEY) || "{}");
+            const registeredCourses = Array.isArray(board && board.registered)
+                ? board.registered
+                : (Array.isArray(board && board.notStarted) ? board.notStarted : []);
+            const examStoreRaw = JSON.parse(localStorage.getItem(EXAMS_STORAGE_KEY) || "{}");
+            const examStore = (examStoreRaw && typeof examStoreRaw === "object") ? examStoreRaw : {};
+            const assignmentsRaw = JSON.parse(localStorage.getItem(ASSIGNMENTS_KEY) || "[]");
+            const completedAssignments = Array.isArray(assignmentsRaw)
+                ? assignmentsRaw.filter(isAssignmentCompletedItem)
+                : [];
+
+            return registeredCourses.map(course => {
+                const syncId = SYNC_PREFIX + (((course.code || "na") + "_" + (course.name || "untitled"))
+                    .toLowerCase()
+                    .replace(/[^a-z0-9]+/g, "_")
+                    .replace(/^_+|_+$/g, ""));
+                const exams = Array.isArray(examStore[syncId]) ? examStore[syncId] : [];
+                const marks = exams
+                    .map(exam => Number(exam && (exam.mark ?? exam.score)))
+                    .filter(mark => Number.isFinite(mark) && mark >= 0 && mark <= 15);
+                if (marks.length === 0) return null;
+
+                const avg = marks.reduce((sum, m) => sum + m, 0) / marks.length;
+                const progressPercent = Math.max(0, Math.min(100, Math.round((avg / 15) * 100)));
+                const movedToDone = completedAssignments.some(item =>
+                    assignmentMatchesCourseTitle(item && item.title, course)
+                );
+
+                if (movedToDone) return null;
+                return {
+                    name: course.name || "Untitled Course",
+                    code: course.code || "N/A",
+                    teacher: course.teacher || "Unknown",
+                    progressPercent: progressPercent
+                };
+            }).filter(Boolean);
+        }
+
+        function renderDashboardInProgressCourses() {
+            const host = document.getElementById("dashboardInProgressCourses");
+            if (!host) return;
+            const items = getDashboardInProgressCourses().slice(0, 6);
+            host.innerHTML = "";
+
+            if (items.length === 0) {
+                const empty = document.createElement("div");
+                empty.className = "course-progress-item";
+                empty.innerHTML = "<h3>No in-progress courses</h3><p>Courses with exam progress will appear here.</p>";
+                host.appendChild(empty);
+                return;
+            }
+
+            items.forEach(item => {
+                const card = document.createElement("div");
+                card.className = "course-progress-item";
+                card.innerHTML = `
+                    <h3>${item.name}</h3>
+                    <p>${item.code} | ${item.teacher}</p>
+                    <span class="progress-badge">${item.progressPercent}% progress</span>
+                `;
+                card.addEventListener("click", function() { location.href = "courses.html"; });
+                host.appendChild(card);
+            });
+        }
+
+        function renderDashboardHabitChart() {
+            const canvas = document.getElementById("dashboardHabitChart");
+            if (!canvas || typeof Chart === "undefined") return;
+
+            const state = getHabitState();
+            const labels = [];
+            const values = [];
+
+            for (let i = 6; i >= 0; i--) {
+                const d = new Date();
+                d.setDate(d.getDate() - i);
+                const key = d.toISOString().split("T")[0];
+                const dayData = state.data[key] || {};
+                let count = 0;
+
+                state.habits.forEach(habit => {
+                    if (dayData[habit]) count++;
+                });
+
+                labels.push(d.toLocaleDateString("en-US", { weekday: "short" }));
+                values.push(count);
+            }
+
+            if (dashboardHabitChart) dashboardHabitChart.destroy();
+            dashboardHabitChart = new Chart(canvas.getContext("2d"), {
+                type: "line",
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: "Completed Habits",
+                        data: values,
+                        borderColor: "#337ea9",
+                        backgroundColor: "rgba(51, 126, 169, 0.2)",
+                        fill: true,
+                        tension: 0.35
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: { color: "#9b9b9b", precision: 0 },
+                            grid: { color: "#2d2d2d" }
+                        },
+                        x: {
+                            ticks: { color: "#9b9b9b" },
+                            grid: { color: "#2d2d2d" }
+                        }
+                    }
+                }
+            });
+        }
+
+        function renderDashboardWeekendWeeklyStatistics() {
+            const host = document.getElementById("dashboardWeekendWeeklyStats");
+            if (!host) return;
+
+            const tasks = JSON.parse(localStorage.getItem("weekTasks") || "[]");
+            const studies = JSON.parse(localStorage.getItem("studies") || "[]");
+
+            const safeTasks = Array.isArray(tasks) ? tasks : [];
+            const safeStudies = Array.isArray(studies) ? studies : [];
+
+            const totalTasks = safeTasks.length;
+            const completedTasks = safeTasks.filter(t => t && t.done).length;
+            const totalHours = safeStudies.reduce((sum, s) => sum + Number((s && s.hours) || 0), 0);
+            const rate = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
+
+            host.innerHTML = `
+                <div class="weekly-progress-title">Live stats from Weekend page</div>
+                <div class="weekly-progress-bar">
+                    <div class="weekly-progress-fill" style="width:${rate}%"></div>
+                </div>
+                <div class="weekly-progress-text">${rate}% completion (${completedTasks}/${totalTasks} tasks)</div>
+                <div class="weekly-progress-text" style="margin-top:6px;">Total study hours: ${totalHours}</div>
+            `;
+        }
+
+        const MWF_PLAN_KEY = "diu_mwf_plan";
+        const DEFAULT_MWF_PLAN = [
+            { id: "mwf1", day: "Monday", date: "2026-03-02", className: "Programming and Problem Solving", classTime: "3:30-4:30pm", details: "Lab practice and arrays", tasks: ["say thank you", "programming class"] },
+            { id: "mwf2", day: "Wednesday", date: "2026-03-04", className: "Discrete Mathematics", classTime: "7:00-8:00pm", details: "Set theory revision", tasks: ["study calculation", "verse"] }
+        ];
+
+        function getMwfPlan() {
+            let items = JSON.parse(localStorage.getItem(MWF_PLAN_KEY));
+            if (!Array.isArray(items) || items.length === 0) {
+                items = DEFAULT_MWF_PLAN.slice();
+                localStorage.setItem(MWF_PLAN_KEY, JSON.stringify(items));
+                return items;
+            }
+            return items.map((item, idx) => ({
+                id: item.id || ("mwf_" + Date.now() + "_" + idx),
+                day: item.day || "Monday",
+                date: item.date || new Date().toISOString().slice(0, 10),
+                className: item.className || "Untitled Class",
+                classTime: item.classTime || "N/A",
+                details: item.details || "",
+                tasks: Array.isArray(item.tasks) ? item.tasks : []
+            }));
+        }
+
+        function formatMwfDate(dateStr) {
+            const date = new Date(dateStr);
+            if (Number.isNaN(date.getTime())) return dateStr;
+            return date.toLocaleDateString();
+        }
+
+        function renderDashboardMondayDropdowns() {
+            const host = document.getElementById("dashboardMondayDropdowns");
+            if (!host) return;
+
+            const items = getMwfPlan().sort((a, b) => new Date(a.date) - new Date(b.date)).slice(0, 8);
+            host.innerHTML = "";
+
+            items.forEach(item => {
+                const dropdown = document.createElement("details");
+                dropdown.className = "task-dropdown";
+                dropdown.innerHTML = `
+                    <summary>
+                        <span>${item.day}: ${item.className}</span>
+                        <span>${formatMwfDate(item.date)}</span>
+                    </summary>
+                    <div class="dropdown-body">
+                        <p>Time: ${item.classTime}</p>
+                        <p>Details: ${item.details || "N/A"}</p>
+                        ${(item.tasks || []).length ? (item.tasks || []).map(t => `<p>- ${t}</p>`).join("") : "<p>No tasks</p>"}
+                    </div>
+                `;
+                host.appendChild(dropdown);
+            });
+
+            if (items.length === 0) {
+                const empty = document.createElement("div");
+                empty.className = "task-dropdown";
+                empty.innerHTML = '<div class="dropdown-body"><p>No Sunday/Monday/Wednesday entries yet.</p></div>';
+                host.appendChild(empty);
+            }
+        }
+
+        function renderDashboardMwf() {
+            const grid = document.getElementById("dashboardMwfGrid");
+            if (!grid) return;
+
+            const items = getMwfPlan().sort((a, b) => new Date(a.date) - new Date(b.date)).slice(0, 6);
+            grid.innerHTML = "";
+
+            items.forEach(item => {
+                const card = document.createElement("div");
+                card.className = "habit-card";
+                card.innerHTML = `
+                    <h4>${item.day}: ${item.className}</h4>
+                    <div class="date-sub">${formatMwfDate(item.date)}</div>
+                    <div class="habit-check-group">
+                        <label>Time: ${item.classTime}</label>
+                        <label>Details: ${item.details || "N/A"}</label>
+                        ${(item.tasks || []).slice(0, 3).map(t => `<label>- ${t}</label>`).join("")}
+                    </div>
+                `;
+                card.addEventListener("click", function() { location.href = "MondayWednesdayandFriday.html"; });
+                grid.appendChild(card);
+            });
+
+            const addCard = document.createElement("div");
+            addCard.className = "new-btn";
+            addCard.textContent = "+ Add MWF Entry";
+            addCard.onclick = function() { location.href = "MondayWednesdayandFriday.html"; };
+            grid.appendChild(addCard);
+        }
+
+        const TTH_PLAN_KEY = "diu_tth_plan";
+        const DEFAULT_TTH_PLAN = [
+            { id: "tth1", day: "Tuesday", date: "2026-03-03", className: "Programming and Problem Solving", classTime: "3:30-4:30pm", details: "Lab practice and arrays", tasks: ["study coding", "solve problems"] },
+            { id: "tth2", day: "Thursday", date: "2026-03-05", className: "Discrete Mathematics", classTime: "7:00-8:00pm", details: "Set theory revision", tasks: ["study calculation", "verse"] }
+        ];
+
+        function getTthPlan() {
+            let items = JSON.parse(localStorage.getItem(TTH_PLAN_KEY));
+            if (!Array.isArray(items) || items.length === 0) {
+                items = DEFAULT_TTH_PLAN.slice();
+                localStorage.setItem(TTH_PLAN_KEY, JSON.stringify(items));
+                return items;
+            }
+            return items.map((item, idx) => ({
+                id: item.id || ("tth_" + Date.now() + "_" + idx),
+                day: item.day || "Tuesday",
+                date: item.date || new Date().toISOString().slice(0, 10),
+                className: item.className || "Untitled Class",
+                classTime: item.classTime || "N/A",
+                details: item.details || "",
+                tasks: Array.isArray(item.tasks) ? item.tasks : []
+            }));
+        }
+
+        function formatTthDate(dateStr) {
+            const date = new Date(dateStr);
+            if (Number.isNaN(date.getTime())) return dateStr;
+            return date.toLocaleDateString();
+        }
+
+        function renderDashboardTthDropdowns() {
+            const host = document.getElementById("dashboardTthDropdowns");
+            if (!host) return;
+
+            const items = getTthPlan().sort((a, b) => new Date(a.date) - new Date(b.date)).slice(0, 8);
+            host.innerHTML = "";
+
+            items.forEach(item => {
+                const dropdown = document.createElement("details");
+                dropdown.className = "task-dropdown";
+                dropdown.innerHTML = `
+                    <summary>
+                        <span>${item.day}: ${item.className}</span>
+                        <span>${formatTthDate(item.date)}</span>
+                    </summary>
+                    <div class="dropdown-body">
+                        <p>Time: ${item.classTime}</p>
+                        <p>Details: ${item.details || "N/A"}</p>
+                        ${(item.tasks || []).length ? (item.tasks || []).map(t => `<p>- ${t}</p>`).join("") : "<p>No tasks</p>"}
+                    </div>
+                `;
+                host.appendChild(dropdown);
+            });
+
+            if (items.length === 0) {
+                const empty = document.createElement("div");
+                empty.className = "task-dropdown";
+                empty.innerHTML = '<div class="dropdown-body"><p>No Tuesday/Thursday entries yet.</p></div>';
+                host.appendChild(empty);
+            }
+        }
+
+        const FRIDAY_PLAN_KEY = "diu_friday_plan";
+        const DEFAULT_FRIDAY_PLAN = [
+            { id: "fri1", day: "Friday", date: "2026-03-06", className: "Programming and Problem Solving", classTime: "3:30-4:30pm", details: "Lab practice and arrays", tasks: ["study coding", "solve problems"] },
+            { id: "fri2", day: "Friday", date: "2026-03-13", className: "Discrete Mathematics", classTime: "7:00-8:00pm", details: "Set theory revision", tasks: ["study calculation", "verse"] }
+        ];
+
+        function getFridayPlan() {
+            let items = JSON.parse(localStorage.getItem(FRIDAY_PLAN_KEY));
+            if (!Array.isArray(items) || items.length === 0) {
+                items = DEFAULT_FRIDAY_PLAN.slice();
+                localStorage.setItem(FRIDAY_PLAN_KEY, JSON.stringify(items));
+                return items;
+            }
+            return items.map((item, idx) => ({
+                id: item.id || ("fri_" + Date.now() + "_" + idx),
+                day: item.day || "Friday",
+                date: item.date || new Date().toISOString().slice(0, 10),
+                className: item.className || "Untitled Class",
+                classTime: item.classTime || "N/A",
+                details: item.details || "",
+                tasks: Array.isArray(item.tasks) ? item.tasks : []
+            }));
+        }
+
+        function renderDashboardFridayDropdowns() {
+            const host = document.getElementById("dashboardFridayDropdowns");
+            if (!host) return;
+
+            const items = getFridayPlan().sort((a, b) => new Date(a.date) - new Date(b.date)).slice(0, 8);
+            host.innerHTML = "";
+
+            items.forEach(item => {
+                const dropdown = document.createElement("details");
+                dropdown.className = "task-dropdown";
+                dropdown.innerHTML = `
+                    <summary>
+                        <span>${item.day}: ${item.className}</span>
+                        <span>${formatTthDate(item.date)}</span>
+                    </summary>
+                    <div class="dropdown-body">
+                        <p>Time: ${item.classTime}</p>
+                        <p>Details: ${item.details || "N/A"}</p>
+                        ${(item.tasks || []).length ? (item.tasks || []).map(t => `<p>- ${t}</p>`).join("") : "<p>No tasks</p>"}
+                    </div>
+                `;
+                host.appendChild(dropdown);
+            });
+
+            if (items.length === 0) {
+                const empty = document.createElement("div");
+                empty.className = "task-dropdown";
+                empty.innerHTML = '<div class="dropdown-body"><p>No Friday entries yet.</p></div>';
+                host.appendChild(empty);
+            }
+        }
+
+        function bindDropdownToggles() {
+            const monToggle = document.getElementById("toggleMondayDropdown");
+            const monList = document.getElementById("dashboardMondayDropdowns");
+            const tthToggle = document.getElementById("toggleTthDropdown");
+            const tthList = document.getElementById("dashboardTthDropdowns");
+            const friToggle = document.getElementById("toggleFridayDropdown");
+            const friList = document.getElementById("dashboardFridayDropdowns");
+
+            if (monToggle && monList) {
+                monToggle.addEventListener("click", function() {
+                    const isCollapsed = monList.classList.toggle("collapsed");
+                    monToggle.textContent = (isCollapsed ? "▶" : "▼") + " Sunday, Monday, Wednesday";
+                });
+            }
+
+            if (tthToggle && tthList) {
+                tthToggle.addEventListener("click", function() {
+                    const isCollapsed = tthList.classList.toggle("collapsed");
+                    tthToggle.textContent = (isCollapsed ? "▶" : "▼") + " Tuesday and Thursday";
+                });
+            }
+
+            if (friToggle && friList) {
+                friToggle.addEventListener("click", function() {
+                    const isCollapsed = friList.classList.toggle("collapsed");
+                    friToggle.textContent = (isCollapsed ? "▶" : "▼") + " Friday";
+                });
+            }
+        }
+
+        window.addEventListener("storage", function(e) {
+            if (e.key === STORAGE_KEY) renderDashboardClasses();
+            if (e.key === ASSIGNMENT_STORAGE_KEY) renderDashboardAssignments();
+            if (e.key === HABIT_STORAGE_KEY) renderDashboardHabitChart();
+            if (e.key === MWF_PLAN_KEY) renderDashboardMondayDropdowns();
+            if (e.key === TTH_PLAN_KEY) renderDashboardTthDropdowns();
+            if (e.key === FRIDAY_PLAN_KEY) renderDashboardFridayDropdowns();
+            if (e.key === "weekTasks" || e.key === "studies") renderDashboardWeekendWeeklyStatistics();
+            if (e.key === "coursesBoard" || e.key === "diu_exams_by_class" || e.key === ASSIGNMENT_STORAGE_KEY) {
+                renderDashboardInProgressCourses();
+            }
+        });
+
+        document.addEventListener("visibilitychange", function() {
+            if (!document.hidden) {
+                renderDashboardClasses();
+                renderDashboardAssignments();
+                renderDashboardHabitChart();
+                renderDashboardMondayDropdowns();
+                renderDashboardTthDropdowns();
+                renderDashboardFridayDropdowns();
+                renderDashboardWeekendWeeklyStatistics();
+                renderDashboardInProgressCourses();
+            }
+        });
+
+        renderDashboardClasses();
+        renderDashboardAssignments();
+        renderDashboardHabitChart();
+        renderDashboardMondayDropdowns();
+        renderDashboardTthDropdowns();
+        renderDashboardFridayDropdowns();
+        renderDashboardWeekendWeeklyStatistics();
+        renderDashboardInProgressCourses();
+        bindDropdownToggles();
+    </script>
+</body>
+</html>

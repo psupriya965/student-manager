@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DIU Student Manager - Planner</title>
+    <style>
+        :root {
+            --bg: #0f1117;
+            --sidebar-bg: #1a1518;
+            --accent-burgundy: #4a1d2e;
+            --border-color: #2d2d2d;
+            --text-main: #ffffff;
+            --text-dim: #9b9b9b;
+            --notion-blue: #337ea9;
+            --muted: #a8b4cb;
+            --accent-pink: #ff4d8d;
+
+            --left-bg: linear-gradient(180deg, #1b2433, #151e2d);
+            --right-bg: linear-gradient(180deg, #1d2637, #171f2f);
+            --card-bg: #202b3e;
+            --card-border: #32405a;
+            --ink: #f3f6fb;
+            --button-bg: #2a2527;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background:
+                radial-gradient(900px 500px at 75% -15%, rgba(255, 77, 141, 0.16), transparent 55%),
+                radial-gradient(700px 420px at -10% 30%, rgba(51, 126, 169, 0.14), transparent 55%),
+                var(--bg);
+            color: var(--ink);
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            width: 260px;
+            background-color: var(--sidebar-bg);
+            padding: 20px 10px;
+            border-right: 1px solid var(--border-color);
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+        .nav-header {
+            font-size: 14px;
+            font-weight: bold;
+            padding: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--accent-burgundy);
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+
+        .sidebar h4 {
+            font-size: 11px;
+            text-transform: uppercase;
+            color: #ff4d8d;
+            margin: 20px 0 10px 10px;
+            letter-spacing: 1px;
+        }
+
+        .menu { list-style: none; padding: 0; margin: 0; }
+        .menu li a {
+            display: flex;
+            align-items: center;
+            padding: 8px 12px;
+            color: var(--text-main);
+            text-decoration: none;
+            font-size: 14px;
+            border-radius: 4px;
+            transition: background 0.2s;
+        }
+        .menu li a:hover { background: rgba(255, 255, 255, 0.05); }
+        .icon { margin-right: 12px; width: 20px; text-align: center; font-size: 16px; }
+
+        .todo-box { margin-top: 30px; padding: 0 10px; }
+        .todo-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 14px;
+            margin-bottom: 8px;
+            color: var(--text-main);
+        }
+        .todo-item input { margin-right: 10px; accent-color: var(--notion-blue); }
+        .todo-item span { flex-grow: 1; }
+        .del-btn {
+            background: none;
+            border: none;
+            color: var(--text-dim);
+            cursor: pointer;
+            font-size: 18px;
+            padding: 0 5px;
+            line-height: 1;
+            display: none;
+        }
+        .todo-item:hover .del-btn { display: block; color: #ff4d4d; }
+
+        .main-area {
+            flex-grow: 1;
+        }
+
+        .hero-banner {
+            height: 165px;
+            background:
+                linear-gradient(120deg, rgba(74, 29, 46, 0.95), rgba(42, 19, 40, 0.82)),
+                radial-gradient(circle at 20% 40%, rgba(255, 77, 141, 0.25), transparent 35%);
+            width: 100%;
+            border-bottom: 1px solid #2f3240;
+        }
+
+        .content-wrap {
+            max-width: 1100px;
+            margin: -56px auto 40px;
+            padding: 0 26px;
+        }
+
+        .page-icon {
+            font-size: 62px;
+            margin-bottom: 8px;
+            display: block;
+            text-shadow: 0 8px 18px rgba(0, 0, 0, 0.35);
+        }
+
+        .page-title {
+            font-size: 50px;
+            font-weight: 750;
+            letter-spacing: -0.6px;
+            margin: 0 0 26px;
+            color: #ffffff;
+        }
+
+        .section-container {
+            margin-bottom: 34px;
+            background: linear-gradient(180deg, rgba(24, 30, 44, 0.8), rgba(16, 21, 33, 0.7));
+            border: 1px solid #2a3245;
+            border-radius: 16px;
+            padding: 18px;
+            box-shadow: 0 14px 30px rgba(0, 0, 0, 0.25);
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid #333d54;
+            padding-bottom: 10px;
+            margin-bottom: 16px;
+        }
+
+        .section-header h2 {
+            margin: 0;
+            font-size: 24px;
+            font-weight: 700;
+            color: #ffffff;
+        }
+
+        .section-icons {
+            color: var(--muted);
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .section-icons span {
+            width: 24px;
+            height: 24px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 6px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .planner-wrap {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .panel {
+            border-radius: 16px;
+            padding: 18px;
+            min-height: 640px;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid #32405a;
+            box-shadow: 0 10px 24px rgba(0, 0, 0, 0.22);
+        }
+
+        .left-panel { background: var(--left-bg); }
+        .right-panel { background: var(--right-bg); }
+
+        .panel h1 {
+            margin: 0 0 18px;
+            font-size: 38px;
+            line-height: 1;
+            color: #ffffff;
+        }
+
+        .date-strip {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 18px;
+            flex-wrap: wrap;
+        }
+
+        .date-pill {
+            border: 1px solid #3d4d68;
+            background: #202d42;
+            border-radius: 8px;
+            width: 44px;
+            height: 52px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            color: #9db0d4;
+            line-height: 1.1;
+            cursor: pointer;
+            text-transform: uppercase;
+        }
+
+        .date-pill strong {
+            margin-top: 3px;
+            font-size: 20px;
+            color: #ffffff;
+            font-weight: 700;
+        }
+
+        .date-pill.active {
+            background: #2b3950;
+            border-color: #536a8d;
+        }
+
+        .group-title {
+            margin: 18px 0 10px;
+            font-size: 11px;
+            letter-spacing: 1.2px;
+            text-transform: uppercase;
+            color: #9db0d4;
+        }
+
+        .task-list {
+            display: grid;
+            gap: 10px;
+        }
+
+        .task-item {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 10px;
+            padding: 12px 12px;
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            font-size: 17px;
+            color: #edf3ff;
+        }
+
+        .task-item .label {
+            flex: 1;
+            line-height: 1.4;
+        }
+
+        .check {
+            width: 20px;
+            height: 20px;
+            margin-top: 1px;
+            accent-color: #9db0d4;
+        }
+
+        .drag {
+            color: #90a2c2;
+            font-size: 16px;
+            line-height: 1;
+            user-select: none;
+        }
+
+        .task-item.done {
+            color: #8fa0be;
+        }
+
+        .task-item.done .label {
+            text-decoration: line-through;
+        }
+
+        .add-row {
+            margin-top: auto;
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 10px;
+            padding-top: 16px;
+        }
+
+        .add-row input {
+            border: 1px solid #3a4761;
+            border-radius: 12px;
+            background: #222b3d;
+            font-size: 18px;
+            padding: 12px 14px;
+            color: #ffffff;
+            outline: none;
+        }
+
+        .add-row button {
+            border: 1px solid #7c3a57;
+            border-radius: 10px;
+            background: #b04574;
+            color: #fff;
+            padding: 0 20px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        @media (max-width: 1000px) {
+            .planner-wrap { grid-template-columns: 1fr; }
+            .panel { min-height: auto; }
+            .content-wrap { margin-top: -48px; padding: 0 14px 30px; }
+            .page-title { font-size: 36px; }
+            .section-container { padding: 14px; border-radius: 14px; }
+        }
+
+        @media (max-width: 900px) {
+            body { display: block; }
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: static;
+                border-right: none;
+                border-bottom: 1px solid var(--border-color);
+            }
+            .hero-banner { display: none; }
+            .content-wrap { margin: 14px auto 20px; padding: 0 10px; }
+            .panel h1 { font-size: 34px; }
+            .task-item { font-size: 18px; }
+            .add-row input { font-size: 16px; }
+            .add-row button { font-size: 14px; }
+        }
+    </style>
+</head>
+<body>
+    <aside class="sidebar">
+        <div class="nav-header">
+            <a href="index.html" style="color: inherit; text-decoration: none; display: flex; align-items: center; gap: 8px;">
+                <span>🎓</span> <span>DIU Student Manager</span>
+            </a>
+        </div>
+
+        <h4>Navigation</h4>
+        <ul class="menu">
+            <li><a href="exams and study.html"><span class="icon">📚</span> Exams and Study</a></li>
+            <li><a href="courses.html"><span class="icon">📕</span> Courses</a></li>
+            <li><a href="habit.html"><span class="icon">📅</span> Habit tracker</a></li>
+            <li><a href="hacking.html"><span class="icon" style="color:#ff4d8d">/&gt;</span> Hacking</a></li>
+            <li><a href="goals.html"><span class="icon">🎯</span> Goals</a></li>
+            <li><a href="planner.html"><span class="icon">🥪</span> Planner</a></li>
+            <li><a href="morning.html"><span class="icon">😀</span> Morning Routine</a></li>
+            <li><a href="night.html"><span class="icon">🌚</span> Night Routine</a></li>
+            <li><a href="allclasses.html"><span class="icon">田</span> All Classes</a></li>
+            <li><a href="assignments.html"><span class="icon">田</span> Assignments</a></li>
+            <li><a href="weekend.html"><span class="icon">🌙</span>Weekend</a></li>
+        </ul>
+
+        <div class="todo-box">
+            <h4>To Do List:</h4>
+            <div style="display: flex; gap: 5px; margin-bottom: 15px;">
+                <input type="text" id="todoInput" placeholder="New task..." style="flex-grow: 1; background: #2d2d2d; border: 1px solid #3a3a3a; color: white; padding: 5px; border-radius: 4px; font-size: 12px;">
+                <button onclick="addTodo()" style="background: var(--notion-blue); border: none; color: white; border-radius: 4px; padding: 0 10px; cursor: pointer; font-weight: bold;">+</button>
+            </div>
+            <div id="todoList">
+                <div class="todo-item"><input type="checkbox"> <span>Daily Class</span> <button class="del-btn" onclick="this.parentElement.remove()">×</button></div>
+                <div class="todo-item"><input type="checkbox"> <span>Assignment</span> <button class="del-btn" onclick="this.parentElement.remove()">×</button></div>
+                <div class="todo-item"><input type="checkbox"> <span>Java Course</span> <button class="del-btn" onclick="this.parentElement.remove()">×</button></div>
+            </div>
+        </div>
+    </aside>
+
+    <div class="main-area">
+        <div class="hero-banner"></div>
+        <main class="content-wrap">
+            <span class="page-icon">🥪</span>
+            <h1 class="page-title">Planner</h1>
+            <section class="section-container">
+                <div class="section-header">
+                    <h2>Today and Personal</h2>
+                    <div class="section-icons"><span>≡</span><span>↕</span><span>⌕</span></div>
+                </div>
+                <div class="planner-wrap">
+                    <section class="panel left-panel">
+                <h1>Today</h1>
+
+                <div class="date-strip" id="dateStrip"></div>
+
+                <div class="group-title">Design</div>
+                <div class="task-list" id="leftDesignList"></div>
+
+                <div class="group-title">Personal</div>
+                <div class="task-list" id="leftPersonalList"></div>
+
+                <div class="group-title">House</div>
+                <div class="task-list" id="leftHouseList"></div>
+
+                <div class="add-row">
+                    <input id="leftInput" placeholder="Write a task...">
+                    <button onclick="addLeftTask()">Add</button>
+                </div>
+            </section>
+
+            <section class="panel right-panel">
+                <h1>Personal</h1>
+
+                <div class="task-list" id="rightActiveList"></div>
+
+                <div class="group-title">Completed</div>
+                <div class="task-list" id="rightDoneList"></div>
+
+                <div class="add-row">
+                    <input id="rightInput" placeholder="Write a task...">
+                    <button onclick="addRightTask()">Add</button>
+                </div>
+            </section>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        const PLANNER_UI_KEY = "planner_ui_image_style_v1";
+
+        const plannerState = {
+            dayIndex: 1,
+            left: {
+                design: [
+                    { text: "Create icons for a dashboard", done: false },
+                    { text: "Prepare a design presentation", done: false }
+                ],
+                personal: [
+                    { text: "Stretch for 15 minutes", done: false },
+                    { text: "Plan your meal", done: false },
+                    { text: "Review daily goals before sleeping. Add some new if time permits", done: false }
+                ],
+                house: [
+                    { text: "Water indoor plants", done: false }
+                ]
+            },
+            right: [
+                { text: "Drink 8 glasses of water", done: false },
+                { text: "Meditate for 10 minutes", done: false },
+                { text: "Read a chapter of a book", done: false },
+                { text: "Go for a 30-minute walk", done: false },
+                { text: "Write in a gratitude journal", done: false },
+                { text: "Practice deep breathing exercises", done: true },
+                { text: "Plan meals for the day", done: true },
+                { text: "Stretch for 15 minutes", done: true },
+                { text: "Limit screen time before bed", done: true }
+            ]
+        };
+
+        function loadPlannerUI() {
+            const saved = JSON.parse(localStorage.getItem(PLANNER_UI_KEY) || "null");
+            if (!saved) return;
+            plannerState.dayIndex = typeof saved.dayIndex === "number" ? saved.dayIndex : plannerState.dayIndex;
+            plannerState.left = saved.left || plannerState.left;
+            plannerState.right = Array.isArray(saved.right) ? saved.right : plannerState.right;
+        }
+
+        function savePlannerUI() {
+            localStorage.setItem(PLANNER_UI_KEY, JSON.stringify(plannerState));
+        }
+
+        function renderDateStrip() {
+            const host = document.getElementById("dateStrip");
+            host.innerHTML = "";
+            const now = new Date();
+            const base = new Date(now);
+            base.setDate(now.getDate() - 1);
+
+            for (let i = 0; i < 6; i++) {
+                const d = new Date(base);
+                d.setDate(base.getDate() + i);
+                const day = d.toLocaleDateString("en-US", { weekday: "short" }).toUpperCase();
+                const date = d.getDate();
+
+                const pill = document.createElement("button");
+                pill.className = "date-pill" + (plannerState.dayIndex === i ? " active" : "");
+                pill.innerHTML = `<span>${day}</span><strong>${date}</strong>`;
+                pill.onclick = function() {
+                    plannerState.dayIndex = i;
+                    savePlannerUI();
+                    renderDateStrip();
+                };
+                host.appendChild(pill);
+            }
+        }
+
+        function renderTaskList(listId, tasks, rightStyle) {
+            const host = document.getElementById(listId);
+            host.innerHTML = "";
+
+            tasks.forEach((task, idx) => {
+                const row = document.createElement("label");
+                row.className = "task-item" + (task.done ? " done" : "");
+                row.innerHTML = `
+                    <input type="checkbox" class="check" ${task.done ? "checked" : ""}>
+                    <span class="label"></span>
+                    ${rightStyle ? '<span class="drag">⋮</span>' : ""}
+                `;
+                row.querySelector(".label").textContent = task.text;
+                row.querySelector(".check").addEventListener("change", function(e) {
+                    task.done = e.target.checked;
+                    savePlannerUI();
+                    renderPlanner();
+                });
+                host.appendChild(row);
+            });
+        }
+
+        function renderPlanner() {
+            renderDateStrip();
+            renderTaskList("leftDesignList", plannerState.left.design, false);
+            renderTaskList("leftPersonalList", plannerState.left.personal, false);
+            renderTaskList("leftHouseList", plannerState.left.house, false);
+
+            const active = plannerState.right.filter(t => !t.done);
+            const done = plannerState.right.filter(t => t.done);
+            renderTaskList("rightActiveList", active, true);
+            renderTaskList("rightDoneList", done, false);
+        }
+
+        function addLeftTask() {
+            const input = document.getElementById("leftInput");
+            const text = input.value.trim();
+            if (!text) return;
+            plannerState.left.personal.push({ text: text, done: false });
+            input.value = "";
+            savePlannerUI();
+            renderPlanner();
+        }
+
+        function addRightTask() {
+            const input = document.getElementById("rightInput");
+            const text = input.value.trim();
+            if (!text) return;
+            plannerState.right.push({ text: text, done: false });
+            input.value = "";
+            savePlannerUI();
+            renderPlanner();
+        }
+
+        document.getElementById("leftInput").addEventListener("keypress", function(e) {
+            if (e.key === "Enter") addLeftTask();
+        });
+
+        document.getElementById("rightInput").addEventListener("keypress", function(e) {
+            if (e.key === "Enter") addRightTask();
+        });
+
+        function addTodo() {
+            const input = document.getElementById("todoInput");
+            const text = input.value.trim();
+            if (!text) return;
+            const todoList = document.getElementById("todoList");
+            const div = document.createElement("div");
+            div.className = "todo-item";
+            div.innerHTML = `
+                <input type="checkbox">
+                <span>${text}</span>
+                <button class="del-btn" onclick="this.parentElement.remove()">×</button>
+            `;
+            todoList.appendChild(div);
+            input.value = "";
+        }
+
+        document.getElementById("todoInput").addEventListener("keypress", function(e) {
+            if (e.key === "Enter") addTodo();
+        });
+
+        loadPlannerUI();
+        renderPlanner();
+    </script>
+</body>
+</html>

@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>All Classes - DIU Student Manager</title>
+<style>
+    :root {
+        --bg: #0f1117;
+        --sidebar-bg: #1a1518;
+        --accent-burgundy: #4a1d2e;
+        --text-main: #ffffff;
+        --text-dim: #9b9b9b;
+        --border-color: #2d2d2d;
+        --notion-blue: #337ea9;
+        --muted: #a8b4cb;
+        --accent-pink: #ff4d8d;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        background:
+            radial-gradient(900px 500px at 75% -15%, rgba(255, 77, 141, 0.16), transparent 55%),
+            radial-gradient(700px 420px at -10% 30%, rgba(51, 126, 169, 0.14), transparent 55%),
+            var(--bg);
+        color: var(--text-main);
+        min-height: 100vh;
+    }
+
+    .layout { display: flex; min-height: 100vh; }
+
+    /* ===== SIDEBAR ===== */
+    .sidebar {
+        width: 260px;
+        background-color: var(--sidebar-bg);
+        padding: 20px 10px;
+        border-right: 1px solid var(--border-color);
+        position: sticky;
+        top: 0;
+        height: 100vh;
+        overflow-y: auto;
+    }
+
+    .nav-header {
+        font-size: 14px;
+        font-weight: bold;
+        padding: 10px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        background: var(--accent-burgundy);
+        border-radius: 5px;
+        margin-bottom: 20px;
+    }
+
+    .sidebar h4 {
+        font-size: 11px;
+        text-transform: uppercase;
+        color: #ff4d8d;
+        margin: 20px 0 10px 10px;
+        letter-spacing: 1px;
+    }
+
+    .menu { list-style: none; padding: 0; margin: 0; }
+    .menu li a {
+        display: flex;
+        align-items: center;
+        padding: 8px 12px;
+        color: var(--text-main);
+        text-decoration: none;
+        font-size: 14px;
+        border-radius: 4px;
+        transition: background 0.2s;
+    }
+    .menu li a:hover { background: rgba(255, 255, 255, 0.05); }
+    .icon { margin-right: 12px; width: 20px; text-align: center; font-size: 16px; }
+
+    .todo-box { margin-top: 30px; padding: 0 10px; }
+    .todo-item { display: flex; align-items: center; justify-content: space-between; font-size: 14px; margin-bottom: 8px; color: var(--text-main); }
+    .todo-item input { margin-right: 10px; accent-color: var(--notion-blue); }
+    .todo-item span { flex-grow: 1; }
+    .del-btn {
+        background: none;
+        border: none;
+        color: var(--text-dim);
+        cursor: pointer;
+        font-size: 18px;
+        padding: 0 5px;
+        line-height: 1;
+        display: none;
+    }
+    .todo-item:hover .del-btn { display: block; color: #ff4d4d; }
+
+    /* ===== MAIN ===== */
+    .main-area { flex-grow: 1; min-width: 0; }
+
+    .hero-banner {
+        height: 165px;
+        background:
+            linear-gradient(120deg, rgba(74, 29, 46, 0.95), rgba(42, 19, 40, 0.82)),
+            radial-gradient(circle at 20% 40%, rgba(255, 77, 141, 0.25), transparent 35%);
+        width: 100%;
+        border-bottom: 1px solid #2f3240;
+    }
+
+    .content-wrap {
+        max-width: 1100px;
+        margin: -56px auto 40px;
+        padding: 0 26px;
+    }
+
+    .page-icon {
+        font-size: 62px;
+        margin-bottom: 8px;
+        display: block;
+        text-shadow: 0 8px 18px rgba(0, 0, 0, 0.35);
+    }
+
+    .page-title {
+        font-size: 50px;
+        font-weight: 750;
+        letter-spacing: -0.6px;
+        margin-bottom: 28px;
+    }
+
+    .section-container {
+        margin-bottom: 34px;
+        background: linear-gradient(180deg, rgba(24, 30, 44, 0.8), rgba(16, 21, 33, 0.7));
+        border: 1px solid #2a3245;
+        border-radius: 16px;
+        padding: 18px;
+        box-shadow: 0 14px 30px rgba(0, 0, 0, 0.25);
+    }
+
+    .section-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        border-bottom: 1px solid #333d54;
+        padding-bottom: 10px;
+        margin-bottom: 16px;
+        gap: 10px;
+    }
+
+    .section-header h2 {
+        font-size: 24px;
+        font-weight: 700;
+        letter-spacing: -0.2px;
+    }
+
+    .header-actions { display: flex; align-items: center; gap: 10px; color: var(--muted); }
+
+    .btn {
+        border: 1px solid #7c3a57;
+        background: #b04574;
+        color: #fff;
+        border-radius: 8px;
+        padding: 8px 12px;
+        cursor: pointer;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 16px;
+    }
+
+    .card {
+        background: linear-gradient(180deg, #1b2433, #151e2d);
+        border: 1px solid #32405a;
+        border-radius: 14px;
+        padding: 16px;
+        box-shadow: 0 10px 24px rgba(0, 0, 0, 0.22);
+    }
+
+    .card h3 { margin-bottom: 8px; font-size: 18px; }
+
+    .tag {
+        display: inline-block;
+        background: #2a3348;
+        color: #cad7ec;
+        padding: 3px 10px;
+        border-radius: 6px;
+        font-size: 12px;
+        margin-top: 4px;
+    }
+
+    .meta-line {
+        margin-top: 8px;
+        color: #d6ddef;
+        font-size: 13px;
+        line-height: 1.45;
+    }
+
+    .edit-btn {
+        margin-top: 14px;
+        width: 100%;
+        border: 1px solid #485774;
+        background: linear-gradient(180deg, #2d3950, #253148);
+        color: #fff;
+        border-radius: 8px;
+        padding: 8px 10px;
+        cursor: pointer;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    /* Modal/Form Styles */
+    .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(7, 10, 16, 0.72);
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+        padding: 16px;
+        backdrop-filter: blur(4px);
+    }
+
+    .modal-content {
+        background: linear-gradient(180deg, #1a2130, #141a26);
+        padding: 20px;
+        border-radius: 14px;
+        width: 100%;
+        max-width: 500px;
+        border: 1px solid #2c374d;
+        box-shadow: 0 16px 40px rgba(0,0,0,0.45);
+    }
+
+    .modal-content h2 { margin-bottom: 14px; }
+
+    .modal-content input[type="text"],
+    .modal-content input[type="time"],
+    .modal-content textarea {
+        width: 100%;
+        margin-bottom: 12px;
+        padding: 10px 11px;
+        background: #222b3d;
+        border: 1px solid #3a4761;
+        color: #fff;
+        border-radius: 9px;
+        font-size: 14px;
+    }
+
+    .modal-content input[type="time"] {
+        color-scheme: dark;
+        min-height: 42px;
+    }
+
+    .day-selector {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 10px;
+        margin-bottom: 12px;
+    }
+
+    .day-selector label {
+        font-size: 12px;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        color: #c4d2e8;
+    }
+
+    .btn-muted {
+        border: 1px solid #46536f;
+        background: #2a3346;
+        color: #fff;
+        border-radius: 8px;
+        padding: 8px 12px;
+        cursor: pointer;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    @media(max-width:1000px) {
+        .sidebar { display: none; }
+        .content-wrap { margin-top: -48px; padding: 0 14px 30px; }
+        .page-title { font-size: 36px; }
+        .section-container { padding: 14px; border-radius: 14px; }
+        .grid { grid-template-columns: 1fr; }
+    }
+</style>
+</head>
+<body>
+
+<div class="layout">
+<aside class="sidebar">
+    <div class="nav-header">
+        <a href="index.html" style="color: inherit; text-decoration: none; display: flex; align-items: center; gap: 8px;">
+            <span>🎓</span> <span>DIU Student Manager</span>
+        </a>
+    </div>
+
+    <h4>Navigation</h4>
+    <ul class="menu">
+        <li><a href="exams and study.html"><span class="icon">📚</span> Exams and Study</a></li>
+        <li><a href="courses.html"><span class="icon">📕</span> Courses</a></li>
+        <li><a href="habit.html"><span class="icon">📅</span> Habit tracker</a></li>
+        <li><a href="hacking.html"><span class="icon" style="color:#ff4d8d">/&gt;</span> Hacking</a></li>
+        <li><a href="goals.html"><span class="icon">🎯</span> Goals</a></li>
+        <li><a href="planner.html"><span class="icon">🥪</span> Planner</a></li>
+        <li><a href="morning.html"><span class="icon">😀</span> Morning Routine</a></li>
+        <li><a href="night.html"><span class="icon">🌚</span> Night Routine</a></li>
+        <li><a href="allclasses.html"><span class="icon">田</span> All Classes</a></li>
+        <li><a href="assignments.html"><span class="icon">田</span> Assignments</a></li>
+        <li><a href="weekend.html"><span class="icon">🌙</span>Weekend</a></li>
+    </ul>
+    <div class="todo-box">
+        <h4>To Do List:</h4>
+        <div style="display: flex; gap: 5px; margin-bottom: 15px;">
+            <input type="text" id="todoInput" placeholder="New task..." style="flex-grow: 1; background: #2d2d2d; border: 1px solid var(--border-color); color: white; padding: 5px; border-radius: 4px; font-size: 12px;">
+            <button onclick="addTodo()" style="background: var(--notion-blue); border: none; color: white; border-radius: 4px; padding: 0 10px; cursor: pointer; font-weight: bold;">+</button>
+        </div>
+
+        <div id="todoList">
+            <div class="todo-item"><input type="checkbox"> <span>Daily Class</span> <button class="del-btn" onclick="this.parentElement.remove()">×</button></div>
+            <div class="todo-item"><input type="checkbox"> <span>Assignment</span> <button class="del-btn" onclick="this.parentElement.remove()">×</button></div>
+            <div class="todo-item"><input type="checkbox"> <span>Java Course</span> <button class="del-btn" onclick="this.parentElement.remove()">×</button></div>
+        </div>
+    </div>
+</aside>
+
+<div class="main-area">
+    <div class="hero-banner"></div>
+
+    <main class="content-wrap">
+        <span class="page-icon">🈴</span>
+        <h1 class="page-title">All Classes</h1>
+
+        <section class="section-container">
+            <div class="section-header">
+                <h2>Class Board</h2>
+                <div class="header-actions">
+                    <span>Registered subjects and schedules</span>
+                    <button class="btn" onclick="openForm()">+ Add Manual Class</button>
+                </div>
+            </div>
+
+            <div id="classGrid" class="grid"></div>
+        </section>
+    </main>
+</div>
+</div>
+
+<div class="modal" id="classModal">
+    <div class="modal-content">
+        <h2 id="modalTitle">Add/Edit Class</h2>
+        <input type="text" id="className" placeholder="Class Name">
+        <input type="text" id="classCode" placeholder="Course Code">
+        <input type="text" id="teacherName" placeholder="Teacher Name">
+
+        <label style="font-size: 12px; margin-bottom: 8px; display: block; color: var(--muted);">Select Days:</label>
+        <div class="day-selector" id="daySelector">
+            <label><input type="checkbox" value="Sat"> Mon</label>
+            <label><input type="checkbox" value="Sun"> Tues</label>
+            <label><input type="checkbox" value="Mon"> Wed</label>
+            <label><input type="checkbox" value="Tue"> Thrus</label>
+            <label><input type="checkbox" value="Wed"> Fri</label>
+            <label><input type="checkbox" value="Thu"> Sat</label>
+            <label><input type="checkbox" value="Fri"> Sun</label>
+        </div>
+
+        <div style="display:flex; gap:10px;">
+            <input type="time" id="startTime">
+            <input type="time" id="endTime">
+        </div>
+
+        <textarea id="note" placeholder="Extra notes..." rows="3"></textarea>
+
+        <div style="text-align:right; gap: 10px; display: flex; justify-content: flex-end;">
+            <button class="btn-muted" onclick="closeForm()">Cancel</button>
+            <button class="btn" onclick="saveClass()">Save Class</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const STORAGE_KEY = "diu_classes";
+    const COURSES_BOARD_KEY = "coursesBoard";
+    const SYNC_PREFIX = "course_sync_";
+    let editingId = null;
+
+    function addTodo() {
+        const input = document.getElementById("todoInput");
+        const text = input.value.trim();
+        if (text !== "") {
+            const todoList = document.getElementById("todoList");
+            const div = document.createElement("div");
+            div.className = "todo-item";
+            div.innerHTML = `
+                <input type="checkbox">
+                <span>${text}</span>
+                <button class="del-btn" onclick="this.parentElement.remove()">×</button>
+            `;
+            todoList.appendChild(div);
+            input.value = "";
+        }
+    }
+
+    document.getElementById("todoInput").addEventListener("keypress", function (e) {
+        if (e.key === "Enter") addTodo();
+    });
+
+    function getClasses() {
+        try {
+            const parsed = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+            return Array.isArray(parsed) ? parsed : [];
+        } catch (e) {
+            return [];
+        }
+    }
+
+    function getRegisteredCourses() {
+        try {
+            const board = JSON.parse(localStorage.getItem(COURSES_BOARD_KEY) || "{}");
+            if (Array.isArray(board && board.registered)) return board.registered;
+            return Array.isArray(board && board.notStarted) ? board.notStarted : [];
+        } catch (e) {
+            return [];
+        }
+    }
+
+    function toSyncId(course) {
+        const raw = ((course.code || "na") + "_" + (course.name || "untitled")).toLowerCase();
+        return SYNC_PREFIX + raw.replace(/[^a-z0-9]+/g, "_").replace(/^_+|_+$/g, "");
+    }
+
+    function syncCoursesToClasses() {
+        const existing = getClasses();
+        const manualClasses = existing.filter(cls => !(cls && typeof cls.id === "string" && cls.id.startsWith(SYNC_PREFIX)));
+        const registeredCourses = getRegisteredCourses();
+
+        const syncedClasses = registeredCourses.map(course => {
+            const id = toSyncId(course);
+            const previous = existing.find(cls => cls && cls.id === id) || {};
+            return {
+                id: id,
+                name: course.name || "Untitled Course",
+                code: course.code || "N/A",
+                teacher: course.teacher || "Unknown",
+                schedule: previous.schedule || "Schedule not set",
+                days: Array.isArray(previous.days) ? previous.days : [],
+                startTime: previous.startTime || "",
+                endTime: previous.endTime || "",
+                note: previous.note || ""
+            };
+        });
+
+        localStorage.setItem(STORAGE_KEY, JSON.stringify([...manualClasses, ...syncedClasses]));
+    }
+
+    function buildSchedule(days, startTime, endTime) {
+        const dayText = days.length ? days.join("/") : "Days not set";
+        const timeText = (startTime && endTime) ? `${startTime}-${endTime}` : "Time not set";
+        return `${dayText} ${timeText}`;
+    }
+
+    function renderClasses() {
+        const grid = document.getElementById("classGrid");
+        syncCoursesToClasses();
+        const classes = getClasses();
+        grid.innerHTML = "";
+
+        classes.forEach(cls => {
+            const daysText = (cls.days && cls.days.length > 0) ? cls.days.join(", ") : "No days set";
+            const timeText = (cls.startTime) ? `${cls.startTime} - ${cls.endTime}` : "No time set";
+
+            const card = document.createElement("div");
+            card.className = "card";
+            card.innerHTML = `
+                <h3>${cls.name}</h3>
+                <span class="tag">${cls.code || "N/A"}</span>
+                <p class="meta-line">👨‍🏫 ${cls.teacher || "Unknown"}</p>
+                <p class="meta-line">📅 ${daysText}</p>
+                <p class="meta-line">⏰ ${timeText}</p>
+                <button class="edit-btn" onclick="editClass('${cls.id}')">Edit Schedule</button>
+            `;
+            grid.appendChild(card);
+        });
+
+        if (classes.length === 0) {
+            const empty = document.createElement("div");
+            empty.className = "card";
+            empty.innerHTML = "<h3>No classes yet</h3><p class='meta-line'>Use + Add Manual Class to create your first subject.</p>";
+            grid.appendChild(empty);
+        }
+    }
+
+    function openForm() {
+        editingId = null;
+        document.getElementById("modalTitle").innerText = "Add Class";
+        document.querySelectorAll('#classModal input[type=text], #classModal input[type=time], #classModal textarea').forEach(i => i.value = "");
+        document.querySelectorAll('#daySelector input').forEach(i => i.checked = false);
+        document.getElementById("classModal").style.display = "flex";
+    }
+
+    function closeForm() {
+        document.getElementById("classModal").style.display = "none";
+    }
+
+    function editClass(id) {
+        const cls = getClasses().find(c => c.id === id);
+        if(!cls) return;
+        editingId = id;
+        document.getElementById("modalTitle").innerText = "Edit Schedule";
+        document.getElementById("className").value = cls.name || "";
+        document.getElementById("classCode").value = cls.code || "";
+        document.getElementById("teacherName").value = cls.teacher || "";
+        document.getElementById("startTime").value = cls.startTime || "";
+        document.getElementById("endTime").value = cls.endTime || "";
+        document.getElementById("note").value = cls.note || "";
+
+        const checkboxes = document.querySelectorAll('#daySelector input');
+        checkboxes.forEach(cb => {
+            cb.checked = cls.days ? cls.days.includes(cb.value) : false;
+        });
+
+        document.getElementById("classModal").style.display = "flex";
+    }
+
+    function saveClass() {
+        const classes = getClasses();
+        const selectedDays = Array.from(document.querySelectorAll('#daySelector input:checked')).map(cb => cb.value);
+        const startTime = document.getElementById("startTime").value;
+        const endTime = document.getElementById("endTime").value;
+
+        const classData = {
+            id: editingId || "manual_" + Date.now(),
+            name: document.getElementById("className").value || "Untitled Class",
+            code: document.getElementById("classCode").value || "N/A",
+            teacher: document.getElementById("teacherName").value || "Unknown",
+            days: selectedDays,
+            startTime: startTime,
+            endTime: endTime,
+            schedule: buildSchedule(selectedDays, startTime, endTime),
+            note: document.getElementById("note").value
+        };
+
+        if(editingId) {
+            const index = classes.findIndex(c => c.id === editingId);
+            if (index >= 0) {
+                classes[index] = { ...classes[index], ...classData };
+            } else {
+                classes.push(classData);
+            }
+        } else {
+            classes.push(classData);
+        }
+
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(classes));
+        closeForm();
+        renderClasses();
+    }
+
+    window.addEventListener('storage', (e) => { if(e.key === STORAGE_KEY) renderClasses(); });
+    renderClasses();
+</script>
+</body>
+</html>

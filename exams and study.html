@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Exams and Study - DIU Student Manager</title>
+
+<style>
+:root {
+  --bg: #0f1117;
+  --sidebar-bg: #1a1518; /* Matched to main dashboard */
+  --nav-header-bg: #4a1d2e; /* Original Burgundy */
+  --panel: #171d29;
+  --panel2: #1f2634;
+  --text: #ffffff;
+  --text-main: #ffffff;
+  --muted: #a8b4cb;
+  --accent-pink: #ff4d8d;
+  --border-color: #2d2d2d;
+  --notion-blue: #337ea9;
+}
+
+/* ===== BASIC ===== */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  background:
+    radial-gradient(900px 500px at 75% -15%, rgba(255, 77, 141, 0.16), transparent 55%),
+    radial-gradient(700px 420px at -10% 30%, rgba(51, 126, 169, 0.14), transparent 55%),
+    var(--bg);
+  color: var(--text);
+}
+
+/* ===== LAYOUT ===== */
+.layout { display: flex; }
+
+/* ===== SIDEBAR (Matched to Dashboard) ===== */
+.sidebar {
+  width: 260px;
+  background-color: var(--sidebar-bg);
+  border-right: 1px solid var(--border-color);
+  padding: 20px 10px;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+}
+
+.nav-header {
+  font-size: 14px;
+  font-weight: bold;
+  padding: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--nav-header-bg);
+  border-radius: 5px;
+  margin-bottom: 20px;
+  color: #fff;
+}
+
+.sidebar h4 {
+  font-size: 11px;
+  text-transform: uppercase;
+  color: var(--accent-pink);
+  margin: 20px 0 10px 10px;
+  letter-spacing: 1px;
+}
+
+.menu { list-style: none; padding: 0; margin: 0; }
+.menu li a {
+  text-decoration: none;
+  color: var(--text-main);
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  padding: 8px 12px;
+  border-radius: 4px;
+  transition: .2s;
+}
+.menu li a:hover { background: rgba(255, 255, 255, 0.05); }
+.menu li a.active { background: rgba(255, 255, 255, 0.08); }
+.icon { margin-right: 12px; width: 20px; text-align: center; font-size: 16px; }
+
+/* To Do List in Sidebar */
+.todo-box { margin-top: 30px; padding: 0 10px; }
+.todo-item {
+  display: flex;
+  align-items: center;
+  font-size: 14px;
+  margin-bottom: 8px;
+  color: var(--text-main);
+  justify-content: space-between;
+}
+.todo-item input { margin-right: 10px; accent-color: var(--notion-blue); }
+.todo-item span { flex-grow: 1; }
+.del-btn {
+  background: none;
+  border: none;
+  color: #9b9b9b;
+  cursor: pointer;
+  font-size: 18px;
+  padding: 0 5px;
+  line-height: 1;
+  display: none;
+}
+.todo-item:hover .del-btn {
+  display: block;
+  color: #ff4d4d;
+}
+
+/* ===== MAIN AREA ===== */
+.main-area {
+  flex-grow: 1;
+}
+
+.hero-banner {
+  height: 165px;
+  background:
+    linear-gradient(120deg, rgba(74, 29, 46, 0.95), rgba(42, 19, 40, 0.82)),
+    radial-gradient(circle at 20% 40%, rgba(255, 77, 141, 0.25), transparent 35%);
+  width: 100%;
+  border-bottom: 1px solid #2f3240;
+}
+
+.content-wrap {
+  max-width: 1100px;
+  margin: -56px auto 40px;
+  padding: 0 26px;
+}
+
+.page-icon {
+  font-size: 62px;
+  margin-bottom: 8px;
+  display: block;
+  text-shadow: 0 8px 18px rgba(0, 0, 0, 0.35);
+}
+.page-title {
+  font-size: 50px;
+  font-weight: 750;
+  letter-spacing: -0.6px;
+  margin-bottom: 28px;
+}
+
+/* SECTION STYLES */
+.section-container {
+  margin-bottom: 34px;
+  background: linear-gradient(180deg, rgba(24, 30, 44, 0.8), rgba(16, 21, 33, 0.7));
+  border: 1px solid #2a3245;
+  border-radius: 16px;
+  padding: 18px 18px 16px;
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.25);
+}
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid #333d54;
+  padding-bottom: 10px;
+  margin-bottom: 16px;
+}
+.section-header h2 {
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: -0.2px;
+}
+.section-icons {
+  color: var(--muted);
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+.section-icons span {
+  width: 24px;
+  height: 24px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* EXAM CARDS GRID */
+.exam-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+.exam-card {
+  background: linear-gradient(180deg, #1b2433, #151e2d);
+  padding: 20px;
+  border-radius: 14px;
+  border: 1px solid #32405a;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.22);
+  transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
+}
+.exam-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 18px 28px rgba(0, 0, 0, 0.3);
+  border-color: #3f5273;
+}
+
+.card-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+  font-size: 18px;
+  margin-bottom: 12px;
+}
+.card-info {
+  font-size: 14px;
+  color: #d6ddef;
+  margin-bottom: 5px;
+}
+
+.score-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 13px 0;
+  font-weight: 800;
+  font-size: 16px;
+}
+.score-circle { width: 20px; height: 20px; border: 2px solid var(--accent-pink); border-radius: 50%; }
+.score-circle.empty { border-color: #444; }
+
+.tag {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 6px;
+  font-size: 13px;
+  margin-bottom: 10px;
+}
+.tag-teacher { background: #4a2b2b; color: #ff9494; }
+.tag-teacher-eng { background: #4a2b4a; color: #f0b2f0; }
+
+.status-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  background: #2d3444;
+}
+.status-pass { background: #25332b; color: #8cf0b3; }
+.status-notpass { background: #3d2222; color: #ff8080; }
+
+.period-label { font-size: 12px; margin-top: 15px; font-weight: 600; }
+.progress-bar { height: 5px; background: #333; border-radius: 10px; margin-top: 8px; overflow: hidden; }
+.progress-fill { height: 100%; background: var(--accent-pink); }
+.empty-state {
+  color: var(--muted);
+  font-size: 16px;
+  border: 1px dashed #44506a;
+  border-radius: 12px;
+  padding: 20px 18px;
+  background: rgba(23, 31, 45, 0.5);
+}
+.exam-actions {
+  margin-top: 14px;
+  display: flex;
+  justify-content: flex-end;
+}
+.mini-btn {
+  border: 1px solid #485774;
+  background: linear-gradient(180deg, #2d3950, #253148);
+  color: #fff;
+  border-radius: 8px;
+  padding: 7px 11px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s;
+}
+.mini-btn:hover { background: linear-gradient(180deg, #34425d, #2a3751); }
+.mini-btn.delete {
+  border-color: #5a2f2f;
+  background: #2e1f23;
+}
+.mini-btn.delete:hover { background: #3c2529; }
+.exam-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(7, 10, 16, 0.72);
+  backdrop-filter: blur(4px);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 300;
+  padding: 16px;
+}
+.exam-modal.show { display: flex; }
+.exam-modal-card {
+  width: 100%;
+  max-width: 460px;
+  background: linear-gradient(180deg, #1a2130, #141a26);
+  border: 1px solid #2c374d;
+  border-radius: 14px;
+  padding: 18px;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45);
+}
+.exam-modal-title {
+  font-size: 20px;
+  font-weight: 700;
+  margin-bottom: 14px;
+}
+.exam-form-row {
+  margin-bottom: 12px;
+}
+.exam-form-row label {
+  display: block;
+  font-size: 12px;
+  color: var(--muted);
+  margin-bottom: 6px;
+}
+.exam-input {
+  width: 100%;
+  border: 1px solid #3a4761;
+  border-radius: 9px;
+  background: #222b3d;
+  color: #fff;
+  padding: 10px 11px;
+  font-size: 14px;
+}
+.exam-hint {
+  font-size: 12px;
+  color: #9db0d4;
+  margin-top: 5px;
+}
+.exam-form-actions {
+  margin-top: 14px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+.btn-muted {
+  border: 1px solid #46536f;
+  background: #2a3346;
+  color: #fff;
+  border-radius: 8px;
+  padding: 8px 12px;
+  cursor: pointer;
+}
+.btn-primary {
+  border: 1px solid #7c3a57;
+  background: #b04574;
+  color: #fff;
+  border-radius: 8px;
+  padding: 8px 12px;
+  cursor: pointer;
+}
+
+@media(max-width: 1000px) {
+  .sidebar { display: none; }
+  .main-area { width: 100%; }
+  .content-wrap { margin-top: -48px; padding: 0 14px 30px; }
+  .page-title { font-size: 36px; }
+  .section-container { padding: 14px; border-radius: 14px; }
+  .exam-grid { grid-template-columns: 1fr; gap: 14px; }
+}
+</style>
+</head>
+
+<body>
+
+<div class="layout">
+  <aside class="sidebar">
+    <div class="nav-header">
+      <a href="index.html" style="color: inherit; text-decoration: none; display: flex; align-items: center; gap: 8px;">
+        <span>🎓</span> <span>DIU Student Manager</span>
+      </a>
+    </div>
+    
+    <h4>Navigation</h4>
+    <ul class="menu">
+            <li><a href="exams and study.html" class="active"><span class="icon">📚</span> Exams and Study</a></li>
+            <li><a href="courses.html"><span class="icon">📕</span> Courses</a></li>
+            <li><a href="habit.html"><span class="icon">📅</span> Habit tracker</a></li>
+            <li><a href="hacking.html"><span class="icon" style="color:#ff4d8d">/&gt;</span> Hacking</a></li>
+            <li><a href="goals.html"><span class="icon">🎯</span> Goals</a></li>
+            <li><a href="planner.html"><span class="icon">🥪</span> Planner</a></li>
+            <li><a href="morning.html"><span class="icon">😀</span> Morning Routine</a></li>
+            <li><a href="night.html"><span class="icon">🌚</span> Night Routine</a></li>
+            <li><a href="allclasses.html"><span class="icon">田</span> All Classes</a></li>
+            <li><a href="assignments.html"><span class="icon">田</span> Assignments</a></li>
+            <li><a href="weekend.html"><span class="icon">🌙</span>Weekend</a></li>
+        </ul>
+        <div class="todo-box">
+            <h4>To Do List:</h4>
+            <div style="display: flex; gap: 5px; margin-bottom: 15px;">
+                <input type="text" id="todoInput" placeholder="New task..." style="flex-grow: 1; background: #2d2d2d; border: 1px solid var(--border-color); color: white; padding: 5px; border-radius: 4px; font-size: 12px;">
+                <button onclick="addTodo()" style="background: var(--notion-blue); border: none; color: white; border-radius: 4px; padding: 0 10px; cursor: pointer; font-weight: bold;">+</button>
+            </div>
+
+            <div id="todoList">
+                <div class="todo-item"><input type="checkbox"> <span>Daily Class</span> <button class="del-btn" onclick="this.parentElement.remove()">×</button></div>
+                <div class="todo-item"><input type="checkbox"> <span>Assignment</span> <button class="del-btn" onclick="this.parentElement.remove()">×</button></div>
+                <div class="todo-item"><input type="checkbox"> <span>Java Course</span> <button class="del-btn" onclick="this.parentElement.remove()">×</button></div>
+            </div>
+        </div>
+
+  </aside>
+
+  <div class="main-area">
+    <div class="hero-banner"></div>
+    
+    <main class="content-wrap">
+      <span class="page-icon">📚</span>
+      <h1 class="page-title">Exams and Study</h1>
+      <div id="examSections"></div>
+
+    </main>
+  </div>
+</div>
+
+<div id="examModal" class="exam-modal" onclick="closeExamModal(event)">
+  <div class="exam-modal-card" onclick="event.stopPropagation()">
+    <div class="exam-modal-title">Add Quiz Exam</div>
+
+    <div class="exam-form-row">
+      <label for="examQuizSelect">Quiz</label>
+      <select id="examQuizSelect" class="exam-input">
+        <option value="Quiz 1">Quiz 1</option>
+        <option value="Quiz 2">Quiz 2</option>
+        <option value="Quiz 3">Quiz 3</option>
+      </select>
+    </div>
+
+    <div class="exam-form-row">
+      <label for="examDateInput">Exam Date</label>
+      <input id="examDateInput" class="exam-input" type="date">
+    </div>
+
+    <div class="exam-form-row">
+      <label for="examMarkInput">Mark (0 - 15)</label>
+      <input id="examMarkInput" class="exam-input" type="number" min="0" max="15" step="1" value="0">
+      <div class="exam-hint">Maximum mark is 15.</div>
+    </div>
+
+    <div class="exam-form-actions">
+      <button class="btn-muted" type="button" onclick="closeExamModal()">Cancel</button>
+      <button class="btn-primary" type="button" onclick="saveExamFromModal()">Add Exam</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const CLASSES_STORAGE_KEY = "diu_classes";
+const COURSES_BOARD_KEY = "coursesBoard";
+const EXAMS_STORAGE_KEY = "diu_exams_by_class";
+let activeExamClassId = null;
+
+function normalizeClass(cls, idx) {
+  return {
+    id: cls.id || ("class_" + Date.now() + "_" + idx),
+    name: cls.name || "Untitled Class",
+    code: cls.code || "N/A",
+    teacher: cls.teacher || "Unknown",
+    schedule: cls.schedule || "Schedule not set"
+  };
+}
+
+function toSyncIdFromCourse(course) {
+  const raw = ((course.code || "na") + "_" + (course.name || "untitled")).toLowerCase();
+  return "course_sync_" + raw.replace(/[^a-z0-9]+/g, "_").replace(/^_+|_+$/g, "");
+}
+
+function getClasses() {
+  const board = JSON.parse(localStorage.getItem(COURSES_BOARD_KEY) || "{}");
+  const registeredCourses = Array.isArray(board && board.registered)
+    ? board.registered
+    : (Array.isArray(board && board.notStarted) ? board.notStarted : []);
+
+  if (registeredCourses.length === 0) {
+    return [];
+  }
+
+  return registeredCourses.map((course, idx) => normalizeClass({
+    id: toSyncIdFromCourse(course),
+    name: course.name || "Untitled Course",
+    code: course.code || "N/A",
+    teacher: course.teacher || "Unknown",
+    schedule: "Schedule not set"
+  }, idx));
+}
+
+function getExamStore() {
+  const store = JSON.parse(localStorage.getItem(EXAMS_STORAGE_KEY) || "{}");
+  return (store && typeof store === "object") ? store : {};
+}
+
+function saveExamStore(store) {
+  localStorage.setItem(EXAMS_STORAGE_KEY, JSON.stringify(store));
+}
+
+function normalizeQuizTitle(raw) {
+  const value = String(raw || "").trim().toLowerCase().replace(/\s+/g, "");
+  if (value === "1" || value === "quiz1") return "Quiz 1";
+  if (value === "2" || value === "quiz2") return "Quiz 2";
+  if (value === "3" || value === "quiz3") return "Quiz 3";
+  return "";
+}
+
+function normalizeStatus(value) {
+  const raw = String(value || "").trim().toLowerCase();
+  if (raw === "pass") return "pass";
+  if (raw === "notpass" || raw === "not pass" || raw === "fail" || raw === "failed") return "notpass";
+  return "upcoming";
+}
+
+function addExam(classId) {
+  activeExamClassId = classId;
+  document.getElementById("examQuizSelect").value = "Quiz 1";
+  document.getElementById("examDateInput").value = "";
+  document.getElementById("examMarkInput").value = "0";
+  document.getElementById("examModal").classList.add("show");
+  document.getElementById("examQuizSelect").focus();
+}
+
+function closeExamModal(event) {
+  if (event && event.target && event.target.id !== "examModal") return;
+  document.getElementById("examModal").classList.remove("show");
+  activeExamClassId = null;
+}
+
+function saveExamFromModal() {
+  if (!activeExamClassId) return;
+
+  const store = getExamStore();
+  const exams = Array.isArray(store[activeExamClassId]) ? store[activeExamClassId] : [];
+  const selectedQuiz = normalizeQuizTitle(document.getElementById("examQuizSelect").value);
+  const dateValue = document.getElementById("examDateInput").value;
+  const markValue = Number(document.getElementById("examMarkInput").value);
+
+  if (!selectedQuiz) {
+    alert("Select Quiz 1, Quiz 2, or Quiz 3.");
+    return;
+  }
+  if (exams.some(exam => normalizeQuizTitle(exam.title) === selectedQuiz)) {
+    alert(selectedQuiz + " already exists for this subject.");
+    return;
+  }
+  if (!Number.isFinite(markValue) || markValue < 0 || markValue > 15) {
+    alert("Mark must be between 0 and 15.");
+    return;
+  }
+
+  exams.push({
+    title: selectedQuiz,
+    date: dateValue || "Upcoming",
+    mark: markValue,
+    status: markValue === 0 ? "upcoming" : (markValue >= 8 ? "pass" : "notpass")
+  });
+
+  store[activeExamClassId] = exams;
+  saveExamStore(store);
+  closeExamModal();
+  renderExamSections();
+}
+
+function deleteExam(classId, examIndex) {
+  const store = getExamStore();
+  if (!Array.isArray(store[classId])) return;
+  if (examIndex < 0 || examIndex >= store[classId].length) return;
+
+  const examTitle = store[classId][examIndex].title || "this exam";
+  const ok = confirm('Delete "' + examTitle + '"?');
+  if (!ok) return;
+
+  store[classId].splice(examIndex, 1);
+  saveExamStore(store);
+  renderExamSections();
+}
+
+function getStatusBadge(status) {
+  if (status === "pass") return '<span class="status-badge status-pass"> Pass</span>';
+  if (status === "notpass") return '<span class="status-badge status-notpass"> Not Pass</span>';
+  return '<span class="status-badge"> Upcoming</span>';
+}
+
+function renderExamSections() {
+  const classes = getClasses();
+  const container = document.getElementById("examSections");
+  const examStore = getExamStore();
+  const validClassIds = new Set(classes.map(cls => cls.id));
+  let changed = false;
+
+  Object.keys(examStore).forEach(classId => {
+    if (!validClassIds.has(classId)) {
+      delete examStore[classId];
+      changed = true;
+    }
+  });
+
+  classes.forEach(cls => {
+    if (!Array.isArray(examStore[cls.id])) examStore[cls.id] = [];
+
+    const before = examStore[cls.id].length;
+    examStore[cls.id] = examStore[cls.id].filter(exam => {
+      const mark = Number(exam.mark ?? exam.score ?? 0);
+      const title = String(exam.title || "").trim().toLowerCase();
+      const date = String(exam.date || "").trim().toLowerCase();
+      const status = String(exam.status || "").trim().toLowerCase();
+      const isLegacyDefault =
+        (title === "exam 1" || title === "exam 2" || title === "exam 3") &&
+        date === "upcoming" &&
+        mark === 0 &&
+        status === "upcoming";
+      return !isLegacyDefault;
+    });
+    if (examStore[cls.id].length !== before) changed = true;
+  });
+
+  if (changed) saveExamStore(examStore);
+
+  if (classes.length === 0) {
+    container.innerHTML = '<div class="empty-state">No registered subjects found in Courses page.</div>';
+    return;
+  }
+
+  container.innerHTML = classes.map(cls => {
+    const exams = examStore[cls.id] || [];
+    const cards = exams.map((exam, examIndex) => `
+      <div class="exam-card">
+        <div class="card-title"> ${exam.title || "Exam"}</div>
+        <p class="card-info"><strong>${cls.code}</strong></p>
+        <p class="card-info">${exam.date || "Upcoming"}</p>
+        <p class="card-info">${cls.schedule}</p>
+        <div class="score-row">
+          <div class="score-circle ${Number(exam.mark ?? exam.score) > 0 ? "" : "empty"}"></div> ${Number(exam.mark ?? exam.score) || 0}/15
+        </div>
+        <div class="tag tag-teacher">${cls.teacher}</div><br>
+        ${getStatusBadge(exam.status)}
+        <div class="exam-actions">
+          <button class="mini-btn delete" onclick="deleteExam('${cls.id}', ${examIndex})">Delete</button>
+        </div>
+      </div>
+    `).join("");
+
+    return `
+      <section class="section-container">
+        <div class="section-header">
+          <h2>${cls.name}</h2>
+          <div class="section-icons">
+            <button class="mini-btn" onclick="addExam('${cls.id}')">+ Add Exam</button>
+            <span>≡</span> <span>↕</span> <span>⌕</span>
+          </div>
+        </div>
+        <div class="exam-grid">${cards || '<div class="empty-state">No exam added yet. Use + Add Exam (Quiz 1/2/3).</div>'}</div>
+      </section>
+    `;
+  }).join("");
+}
+
+function addTodo() {
+const input = document.getElementById('todoInput');
+const text = input.value.trim();
+if (text !== "") {
+const todoList = document.getElementById('todoList');
+const div = document.createElement('div');
+div.className = 'todo-item';
+div.innerHTML = `
+<input type="checkbox">
+<span>${text}</span>
+<button class="del-btn" onclick="this.parentElement.remove()">x</button>
+`;
+todoList.appendChild(div);
+input.value = "";
+}
+}
+
+document.getElementById('todoInput').addEventListener('keypress', function (e) {
+if (e.key === 'Enter') addTodo();
+});
+
+window.addEventListener("storage", function (e) {
+  if (e.key === CLASSES_STORAGE_KEY || e.key === EXAMS_STORAGE_KEY || e.key === COURSES_BOARD_KEY) {
+    renderExamSections();
+  }
+});
+window.addEventListener("pageshow", renderExamSections);
+window.addEventListener("focus", renderExamSections);
+document.addEventListener("keydown", function(e) {
+  if (e.key === "Escape") closeExamModal();
+});
+
+renderExamSections();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Courses - DIU Student Manager</title>
+
+<style>
+:root{
+  --bg:#0f1117;
+  --sidebar-bg: #1a1518; /* Matched Dashboard */
+  --nav-header-bg: #4a1d2e; /* Original Burgundy */
+  --panel:#171a22;
+  --panel-soft:#1d2028;
+  --text:#f1ede7;
+  --text-main:#ffffff;
+  --line:#2a2f3b;
+  --accent-pink: #ff4d8d;
+  --border-color:#2d2d2d;
+  --notion-blue:#337ea9;
+}
+
+*{box-sizing:border-box;margin:0;padding:0;}
+
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+/* ===== LAYOUT ===== */
+.layout{display:flex;}
+
+/* ===== SIDEBAR (Standardized) ===== */
+.sidebar {
+  width: 260px;
+  background-color: var(--sidebar-bg);
+  border-right: 1px solid var(--border-color);
+  padding: 20px 10px;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+}
+
+.nav-header {
+  font-size: 14px;
+  font-weight: bold;
+  padding: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--nav-header-bg);
+  border-radius: 5px;
+  margin-bottom: 20px;
+  color: #fff;
+}
+
+.sidebar h4 {
+  font-size: 11px;
+  text-transform: uppercase;
+  color: var(--accent-pink);
+  margin: 20px 0 10px 10px;
+  letter-spacing: 1px;
+}
+
+.menu { list-style: none; padding: 0; margin: 0; }
+.menu li a {
+  text-decoration: none;
+  color: var(--text-main);
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  padding: 8px 12px;
+  border-radius: 4px;
+  transition: background 0.2s;
+}
+.menu li a:hover { background: rgba(255, 255, 255, 0.05); }
+.menu li a.active { background: rgba(255, 255, 255, 0.08); }
+.icon { margin-right: 12px; width: 20px; text-align: center; font-size: 16px; }
+
+/* To Do List in Sidebar */
+.todo-box { margin-top: 30px; padding: 0 10px; }
+.todo-item { display: flex; align-items: center; font-size: 14px; margin-bottom: 8px; color: var(--text-main); justify-content: space-between; }
+.todo-item input { margin-right: 10px; accent-color: var(--notion-blue); }
+.todo-item span { flex-grow: 1; }
+.del-btn {
+  background: none;
+  border: none;
+  color: #9b9b9b;
+  cursor: pointer;
+  font-size: 18px;
+  padding: 0 5px;
+  line-height: 1;
+  display: none;
+}
+.todo-item:hover .del-btn {
+  display: block;
+  color: #ff4d4d;
+}
+
+/* ===== MAIN AREA ===== */
+.main-area{
+  flex-grow:1;
+}
+
+/* ===== HERO ===== */
+.hero{
+  height:230px;
+  background:
+  linear-gradient(rgba(0,0,0,.35),rgba(0,0,0,.68)),
+  url("https://user-images.githubusercontent.com/60839928/101146587-603a2a00-3645-11eb-900f-d6e6b72f37c5.png");
+  background-size:cover;
+  background-position:center;
+  border-bottom:1px solid #242936;
+}
+
+.wrap{
+  max-width:980px;
+  margin:-52px auto 40px;
+  padding:0 20px;
+}
+
+.logo{
+  width:80px;
+  height:80px;
+  border-radius:16px;
+  background:#cfd6de;
+  display:grid;
+  place-items:center;
+  font-size:44px;
+  box-shadow:0 8px 25px rgba(0,0,0,.35);
+  margin-bottom:10px;
+}
+
+h1{
+  font-size:52px;
+  font-weight:700;
+  margin-bottom:14px;
+}
+
+.course-links p{
+  color:#8e3966;
+  font-size:28px;
+  font-style:italic;
+  font-weight:600;
+  margin:7px 0;
+}
+
+/* ===== KANBAN ===== */
+.section-head{
+  margin:22px 2px 12px;
+}
+
+.section-head h2{
+  font-size:40px;
+}
+
+.kanban{
+  display:grid;
+  grid-template-columns:1fr 1fr 1fr;
+  gap:14px;
+}
+
+.column{
+  background:var(--panel);
+  border-radius:14px;
+  padding:10px;
+  min-height:130px;
+}
+
+.column.progress{background:#2a191d;}
+.column.done{background:#271727;}
+
+.column-title{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  font-size:26px;
+  font-weight:700;
+  margin-bottom:10px;
+}
+
+.pill{
+  background:#50545f;
+  border-radius:999px;
+  padding:4px 10px;
+  font-size:14px;
+  font-weight:700;
+}
+
+.progress .pill{background:#c45e5c;}
+.done .pill{background:#b05189;}
+
+.count{
+  color:#d46c6b;
+  font-size:22px;
+  font-weight:700;
+}
+
+.task{
+  background:var(--panel-soft);
+  border:1px solid var(--line);
+  border-radius:12px;
+  padding:10px 12px;
+  margin-top:8px;
+  cursor:pointer;
+  transition:.2s;
+}
+
+.task:hover{transform:translateY(-2px);}
+
+.task strong{
+  display:block;
+  font-size:18px;
+  margin-bottom:6px;
+}
+.task-head{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:8px;
+}
+.del-subject-btn{
+  border:none;
+  background:transparent;
+  color:#9b9b9b;
+  font-size:18px;
+  line-height:1;
+  cursor:pointer;
+  padding:0;
+}
+.del-subject-btn:hover{color:#ff6b6b;}
+.task .meta{
+  display:block;
+  font-size:13px;
+  color:#c9cedb;
+  margin-bottom:6px;
+}
+
+.tag{
+  display:inline-block;
+  font-size:13px;
+  background:#9d5c75;
+  color:#ffeaf3;
+  border-radius:6px;
+  padding:4px 8px;
+  font-weight:600;
+}
+
+/* ===== ADD COURSE ===== */
+.add-box{
+  margin-top:16px;
+  background:#161a23;
+  border-radius:12px;
+  padding:12px;
+  max-width:440px;
+}
+
+.add-box input{
+  width:100%;
+  margin-bottom:8px;
+  padding:10px;
+  border-radius:8px;
+  border:none;
+  background:#222837;
+  color:#fff;
+}
+
+.add-box button{
+  width:100%;
+  border:none;
+  border-radius:8px;
+  padding:10px;
+  background:#d4588f;
+  color:#fff;
+  font-weight:700;
+  cursor:pointer;
+}
+
+@media(max-width: 900px) {
+  .sidebar { display: none; }
+  .main-area { width: 100%; }
+}
+</style>
+</head>
+
+<body>
+
+<div class="layout">
+
+<aside class="sidebar">
+  <div class="nav-header">
+    <a href="index.html" style="color: inherit; text-decoration: none; display: flex; align-items: center; gap: 8px;">
+      <span>🎓</span> <span>DIU Student Manager</span>
+    </a>
+  </div>
+  
+  <h4>Navigation</h4>
+  <ul class="menu">
+            <li><a href="exams and study.html"><span class="icon">📚</span> Exams and Study</a></li>
+            <li><a href="courses.html" class="active"><span class="icon">📕</span> Courses</a></li>
+            <li><a href="habit.html"><span class="icon">📅</span> Habit tracker</a></li>
+            <li><a href="hacking.html"><span class="icon" style="color:#ff4d8d">/&gt;</span> Hacking</a></li>
+            <li><a href="goals.html"><span class="icon">🎯</span> Goals</a></li>
+            <li><a href="planner.html"><span class="icon">🥪</span> Planner</a></li>
+            <li><a href="morning.html"><span class="icon">😀</span> Morning Routine</a></li>
+            <li><a href="night.html"><span class="icon">🌚</span> Night Routine</a></li>
+            <li><a href="allclasses.html"><span class="icon">田</span> All Classes</a></li>
+            <li><a href="assignments.html"><span class="icon">田</span> Assignments</a></li>
+            <li><a href="weekend.html"><span class="icon">🌙</span>Weekend</a></li>
+        </ul>
+        <div class="todo-box">
+            <h4>To Do List:</h4>
+            <div style="display: flex; gap: 5px; margin-bottom: 15px;">
+                <input type="text" id="todoInput" placeholder="New task..." style="flex-grow: 1; background: #2d2d2d; border: 1px solid var(--border-color); color: white; padding: 5px; border-radius: 4px; font-size: 12px;">
+                <button onclick="addTodo()" style="background: var(--notion-blue); border: none; color: white; border-radius: 4px; padding: 0 10px; cursor: pointer; font-weight: bold;">+</button>
+            </div>
+
+            <div id="todoList">
+                <div class="todo-item"><input type="checkbox"> <span>Daily Class</span> <button class="del-btn" onclick="this.parentElement.remove()">�</button></div>
+                <div class="todo-item"><input type="checkbox"> <span>Assignment</span> <button class="del-btn" onclick="this.parentElement.remove()">�</button></div>
+                <div class="todo-item"><input type="checkbox"> <span>Java Course</span> <button class="del-btn" onclick="this.parentElement.remove()">�</button></div>
+            </div>
+        </div>
+
+
+</aside>
+
+<div class="main-area">
+
+<header class="hero"></header>
+
+<main class="wrap">
+
+<div class="logo">📕</div>
+<h1>Courses</h1>
+
+<div class="course-links" id="courseLinks"></div>
+
+<div class="section-head">
+<h2>process</h2>
+</div>
+
+<section class="kanban">
+
+<div class="column">
+<div class="column-title">
+<span class="pill">Registered </span>
+<span class="count" id="notStartedCount">0</span>
+</div>
+<div id="notStarted"></div>
+</div>
+
+<div class="column progress">
+<div class="column-title">
+<span class="pill">In progress</span>
+<span class="count" id="inProgressCount">0</span>
+</div>
+<div id="inProgress"></div>
+</div>
+
+<div class="column done">
+<div class="column-title">
+<span class="pill">Done</span>
+<span class="count" id="doneCount">0</span>
+</div>
+<div id="done"></div>
+</div>
+
+</section>
+
+<div class="add-box">
+<h3>Add New Course</h3>
+<input type="text" id="courseName" placeholder="Course name">
+<input type="text" id="courseCode" placeholder="Course code">
+<input type="text" id="teacherName" placeholder="Teacher name">
+<button onclick="addCourse()">Add Course</button>
+</div>
+
+</main>
+</div>
+</div>
+
+<script>
+function addTodo() {
+const input = document.getElementById('todoInput');
+const text = input.value.trim();
+if (text !== "") {
+const todoList = document.getElementById('todoList');
+const div = document.createElement('div');
+div.className = 'todo-item';
+div.innerHTML = `
+<input type="checkbox">
+<span>${text}</span>
+<button class="del-btn" onclick="this.parentElement.remove()">x</button>
+`;
+todoList.appendChild(div);
+input.value = "";
+}
+}
+
+document.getElementById('todoInput').addEventListener('keypress', function (e) {
+if (e.key === 'Enter') addTodo();
+});
+
+const defaultData={
+notStarted:[],
+inProgress:[],
+done:[]
+};
+
+const BOARD_KEY="coursesBoard";
+const USER_ONLY_INIT_KEY="coursesBoard_userOnlyInit_v1";
+const CLASSES_STORAGE_KEY="diu_classes";
+const EXAMS_STORAGE_KEY="diu_exams_by_class";
+const ASSIGNMENT_STORAGE_KEY="assignment_system_v2";
+const SYNC_PREFIX="course_sync_";
+let board=JSON.parse(localStorage.getItem(BOARD_KEY)||"null")||defaultData;
+let autoInProgress=[];
+let derivedDone=[];
+
+function ensureBoardShape(){
+if(!board||typeof board!=="object") board={...defaultData};
+if(!Array.isArray(board.notStarted)) board.notStarted=[];
+if(!Array.isArray(board.inProgress)) board.inProgress=[];
+if(!Array.isArray(board.done)) board.done=[];
+}
+
+function renderColumn(id,items){
+const box=document.getElementById(id);
+box.innerHTML=items.map((item,index)=>`
+<div class="task">
+<div class="task-head">
+<strong>${item.name}</strong>
+${id==="notStarted"?`<button class="del-subject-btn" onclick="deleteSubject(${index})" title="Delete subject">×</button>`:""}
+</div>
+<span class="meta">${item.code||"N/A"} | ${item.teacher||"Unknown"}</span>
+${id==="inProgress"&&typeof item.progressPercent==="number"
+?`<span class="tag">${item.progressPercent}% progress</span>`
+:id==="done"&&item.doneByAssignment
+?`<span class="tag">100% Completed</span>`
+:`<span class="tag">${item.code||"course"}</span>`}
+</div>
+`).join("");
+}
+
+function renderCourseLinks(){
+const linksBox=document.getElementById("courseLinks");
+const notStartedCourses=[...(board.notStarted||[])];
+if(notStartedCourses.length===0){
+linksBox.innerHTML="<p>No course added yet</p>";
+return;
+}
+linksBox.innerHTML=notStartedCourses.map(item=>`<p>${item.name}</p>`).join("");
+}
+
+function updateCounts(){
+document.getElementById("notStartedCount").textContent=board.notStarted.length;
+document.getElementById("inProgressCount").textContent=autoInProgress.length;
+document.getElementById("doneCount").textContent=derivedDone.length;
+}
+
+function saveBoard(){
+localStorage.setItem(BOARD_KEY,JSON.stringify(board));
+}
+
+function toSyncId(course){
+const raw=((course.code||"na")+"_"+(course.name||"untitled")).toLowerCase();
+return SYNC_PREFIX+raw.replace(/[^a-z0-9]+/g,"_").replace(/^_+|_+$/g,"");
+}
+
+function syncCoursesToClasses(){
+const registeredCourses=Array.isArray(board.registered)?board.registered:(board.notStarted||[]);
+const existing=JSON.parse(localStorage.getItem(CLASSES_STORAGE_KEY)||"[]");
+const safeExisting=Array.isArray(existing)?existing:[];
+
+const manualClasses=safeExisting.filter(cls=>!(cls&&typeof cls.id==="string"&&cls.id.startsWith(SYNC_PREFIX)));
+const syncedClasses=registeredCourses.map(course=>{
+const id=toSyncId(course);
+const previous=safeExisting.find(cls=>cls&&cls.id===id)||{};
+return {
+id:id,
+name:course.name||"Untitled Course",
+code:course.code||"N/A",
+teacher:course.teacher||"Unknown",
+schedule:previous.schedule||"Schedule not set",
+days:Array.isArray(previous.days)?previous.days:[],
+startTime:previous.startTime||"",
+endTime:previous.endTime||"",
+note:previous.note||""
+};
+});
+
+localStorage.setItem(CLASSES_STORAGE_KEY,JSON.stringify([...manualClasses,...syncedClasses]));
+}
+
+function buildAutoInProgress(){
+const registeredCourses=Array.isArray(board.registered)?board.registered:(board.notStarted||[]);
+const examStore=JSON.parse(localStorage.getItem(EXAMS_STORAGE_KEY)||"{}");
+const safeExamStore=(examStore&&typeof examStore==="object")?examStore:{};
+
+return registeredCourses.map(course=>{
+const id=toSyncId(course);
+const exams=Array.isArray(safeExamStore[id])?safeExamStore[id]:[];
+const quizMarks=exams
+.map(exam=>Number(exam.mark ?? exam.score))
+.filter(mark=>Number.isFinite(mark)&&mark>=0&&mark<=15);
+
+if(quizMarks.length===0) return null;
+
+const avgMark=quizMarks.reduce((sum,val)=>sum+val,0)/quizMarks.length;
+const progressPercent=Math.round((avgMark/15)*100);
+
+return {
+...course,
+progressPercent:Math.max(0,Math.min(100,progressPercent))
+};
+}).filter(Boolean);
+}
+
+function normalizeText(value){
+return String(value||"").toLowerCase().replace(/[^a-z0-9]+/g," ").trim();
+}
+
+function getCompletedAssignments(){
+const raw=JSON.parse(localStorage.getItem(ASSIGNMENT_STORAGE_KEY)||"[]");
+if(!Array.isArray(raw)) return [];
+return raw
+.filter(item=>Boolean(typeof item.isCompleted!=="undefined" ? item.isCompleted : item.completed))
+.map(item=>({
+title:item&&item.title?String(item.title):""
+}));
+}
+
+function assignmentMatchesCourse(assignment,course){
+const assignmentTitle=normalizeText(assignment&&assignment.title);
+const courseName=normalizeText(course&&course.name);
+const courseCode=normalizeText(course&&course.code);
+if(!assignmentTitle) return false;
+if(courseName && (assignmentTitle===courseName || assignmentTitle.includes(courseName) || courseName.includes(assignmentTitle))) return true;
+if(courseCode && (assignmentTitle===courseCode || assignmentTitle.includes(courseCode) || courseCode.includes(assignmentTitle))) return true;
+return false;
+}
+
+function splitInProgressByAssignmentCompletion(items){
+const completedAssignments=getCompletedAssignments();
+const stillInProgress=[];
+const doneFromAssignment=[];
+
+items.forEach(course=>{
+const matched=completedAssignments.some(assignment=>assignmentMatchesCourse(assignment,course));
+if(matched){
+doneFromAssignment.push({...course,doneByAssignment:true});
+}else{
+stillInProgress.push(course);
+}
+});
+
+return {stillInProgress,doneFromAssignment};
+}
+
+function buildDerivedDone(doneFromAssignment){
+const manualDone=Array.isArray(board.done)?board.done:[];
+const all=[...manualDone,...doneFromAssignment];
+const seen=new Set();
+return all.filter(item=>{
+const key=((item&&item.code)||"")+"|"+((item&&item.name)||"");
+if(seen.has(key)) return false;
+seen.add(key);
+return true;
+});
+}
+
+function initUserOnlyEmptyBoard(){
+if(localStorage.getItem(USER_ONLY_INIT_KEY)) return;
+board={notStarted:[],inProgress:[],done:[]};
+saveBoard();
+localStorage.setItem(USER_ONLY_INIT_KEY,"1");
+}
+
+function renderBoard(){
+const autoCourses=buildAutoInProgress();
+const split=splitInProgressByAssignmentCompletion(autoCourses);
+autoInProgress=split.stillInProgress;
+derivedDone=buildDerivedDone(split.doneFromAssignment);
+renderColumn("notStarted",board.notStarted);
+renderColumn("inProgress",autoInProgress);
+renderColumn("done",derivedDone);
+renderCourseLinks();
+updateCounts();
+syncCoursesToClasses();
+}
+
+function addCourse(){
+const name=document.getElementById("courseName").value.trim();
+const code=document.getElementById("courseCode").value.trim();
+const teacher=document.getElementById("teacherName").value.trim();
+
+if(!name){alert("Enter course name");return;}
+if(!code){alert("Enter course code");return;}
+if(!teacher){alert("Enter teacher name");return;}
+
+board.notStarted.push({name,code,teacher});
+saveBoard();
+renderBoard();
+
+document.getElementById("courseName").value="";
+document.getElementById("courseCode").value="";
+document.getElementById("teacherName").value="";
+}
+
+function deleteSubject(index){
+if(index<0||index>=board.notStarted.length) return;
+const subject=board.notStarted[index];
+if(!confirm(`Delete subject "${subject.name}"?`)) return;
+board.notStarted.splice(index,1);
+saveBoard();
+renderBoard();
+}
+
+ensureBoardShape();
+initUserOnlyEmptyBoard();
+ensureBoardShape();
+renderBoard();
+window.addEventListener("storage",function(e){
+if(e.key===BOARD_KEY||e.key===EXAMS_STORAGE_KEY||e.key===CLASSES_STORAGE_KEY){
+board=JSON.parse(localStorage.getItem(BOARD_KEY)||"null")||defaultData;
+ensureBoardShape();
+renderBoard();
+}
+});
+</script>
+
+</body>
+</html>
