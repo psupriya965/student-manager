@@ -1,132 +1,91 @@
+# 🎓 DIU Student Manager
 
-# 🎓 DIU Student Manager Dashboard
+DIU Student Manager is a responsive and user-friendly student productivity website designed to help students organize their academic activities efficiently. The project provides different sections for planning schedules, managing assignments, tracking goals, building habits, and organizing study routines.
 
-<p align="center">
-A modern academic productivity dashboard built for students of <b>Daffodil International University</b>.
-<br>
-Manage classes, assignments, study plans, habits, goals, and daily routines in one place.
-</p>
-
-<p align="center">
-
-<img src="https://github.com/Mdsifatmahmud/DIU_Student_manager/blob/main/web%20view.png" width="800"/>
-
-
-</p>
+The website is built using HTML, CSS, and JavaScript with a clean and modern interface suitable for students.
 
 ---
 
-## 📖 About The Project
+# 🚀 Live Demo
 
-**DIU Student Manager Dashboard** is a student productivity tool designed to help university students organize their academic activities efficiently.
-
-The dashboard provides a centralized place to manage:
-
-* class schedules
-* assignments and deadlines
-* study plans
-* personal goals
-* daily habits
-* structured routines
-
-This project demonstrates practical **frontend dashboard development** and user-focused design for academic productivity.
+🔗 https://psupriya965.github.io/DIU-student-manager/
 
 ---
 
-## ✨ Features
+# 📌 Features
 
-✔ Class Schedule Manager
-✔ Assignment & Deadline Tracker
-✔ Study Planner
-✔ Goal Management
-✔ Habit Tracking
-✔ Daily Routine Planner
-✔ Multi-page Dashboard Navigation
+## 📅 Planner Management
+- Organize daily activities
+- Plan schedules efficiently
+- Improve productivity
+
+## 📚 Course Management
+- Maintain subject/course details
+- Easy navigation between courses
+
+## 📝 Assignment Tracking
+- Track pending assignments
+- Manage academic tasks effectively
+
+## 🎯 Goal Tracking
+- Set study and personal goals
+- Monitor progress regularly
+
+## 💡 Habit Tracker
+- Build productive habits
+- Maintain consistency in routines
+
+## 🌙 Daily Routine Pages
+Includes dedicated pages for:
+- Morning routine
+- Night routine
+- Friday schedule
+- Weekend planning
+
+## 📱 Responsive Design
+- Mobile-friendly layout
+- Works across desktops, tablets, and phones
+
+## 🎨 Clean User Interface
+- Simple navigation
+- Organized sections
+- Easy-to-use design
 
 ---
 
-## 🎥 Project Preview
+# 🛠️ Technologies Used
 
-<p align="center">
-  <img src="https://github.com/Mdsifatmahmud/DIU_Student_manager/blob/main/web%20view.png" width="800"/>
-</p>
-
-<p align="center">
-  <img src="https://github.com/Mdsifatmahmud/DIU_Student_manager/blob/main/courses.png" width="800"/>
-</p>
-
+- HTML5
+- CSS3
+- JavaScript
 
 ---
 
-## 🧱 Project Structure
+# 📂 Project Structure
 
-```
-diu-student-manager
+```bash
+DIU-Student-Manager/
 │
 ├── index.html
-├── schedule.html
+├── allclasses.html
 ├── assignments.html
-├── planner.html
-├── habits.html
+├── courses.html
+├── exams-and-study.html
+├── friday.html
 ├── goals.html
+├── habit.html
+├── hacking.html
+├── morning.html
+├── night.html
+├── planner.html
+├── weekend.html
 │
-├── css
-│   └── styles.css
+├── css/
+│   └── style.css
 │
-├── js
+├── js/
 │   └── script.js
 │
-└── assets
-    ├── screenshots
-    └── images
-```
-
----
-
-## 🛠 Tech Stack
-
-| Technology | Purpose       |
-| ---------- | ------------- |
-| HTML5      | Structure     |
-| CSS3       | Styling       |
-| JavaScript | Interactivity |
-
----
-
-## 🚀 Getting Started
-
-### Open the project
-
-Simply open:
-
-```
-https://mdsifatmahmud.github.io/DIU_Student_manager/
-```
-
-
-
----
-
-## 🎯 Future Improvements
-
-* User authentication system
-* Database integration
-* Mobile responsive design
-* Study analytics dashboard
-* Reminder & notification system
-* Calendar integration
-
----
-
-## 👨‍💻 Author
-
-**Md. Sifat Mahmud**
-CSE Student
-Daffodil International University
-
-GitHub:
-[Mdsifatmahmud](https://github.com/Mdsifatmahmud)
-
----
-
-
+└── assets/
+    └── images/
+        └── screenshots/
