@@ -8,7 +8,7 @@ The website is built using HTML, CSS, and JavaScript with a clean and modern int
 
 # 🚀 Live Demo
 
-🔗 https://psupriya965.github.io/DIU-student-manager/
+🔗 https://psupriya965.github.io/student-manager/
 
 ---
 
