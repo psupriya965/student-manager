@@ -1,6 +1,6 @@
-# 🎓 DIU Student Manager
+# 🎓 Student Productivity Manager
 
-DIU Student Manager is a responsive and user-friendly student productivity website designed to help students organize their academic activities efficiently. The project provides different sections for planning schedules, managing assignments, tracking goals, building habits, and organizing study routines.
+ Student  Productivity Manager is a responsive and user-friendly student productivity website designed to help students organize their academic activities efficiently. The project provides different sections for planning schedules, managing assignments, tracking goals, building habits, and organizing study routines.
 
 The website is built using HTML, CSS, and JavaScript with a clean and modern interface suitable for students.
 
